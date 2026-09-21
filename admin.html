@@ -1,0 +1,2899 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم إدارة فرع الجمعية | ASSP KKU Admin Portal</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c5bba8;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-[#f4b016] selection:text-[#085a3a]">
+
+  <!-- Login Gate Screen (Shown if not logged in) -->
+  <div id="login-gate" class="fixed inset-0 bg-[#054029] z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full border border-emerald-800/40 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="bg-[#085a3a] p-7 text-white text-right relative">
+        <div class="inline-flex p-3 rounded-2xl bg-white/10 text-[#f4b016] mb-3">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h1 class="text-xl font-bold">بوابة إدارة فرع الجمعية</h1>
+        <p class="text-xs text-white/80 mt-1">لوحة التحكم الإدارية المركزية - فرع جامعة الملك خالد</p>
+      </div>
+
+      <form onsubmit="processLogin(event)" class="p-7 space-y-4 text-right">
+        <div id="login-err-msg" class="hidden p-3 rounded-xl text-xs font-semibold text-center bg-red-50 text-red-700 border border-red-200"></div>
+
+        <div>
+          <label class="block text-xs font-bold text-[#085a3a] mb-1.5">البريد الإلكتروني الجامعي للمشرف</label>
+          <input type="email" id="login-email" required value="admin@kku.edu.sa" placeholder="admin@kku.edu.sa" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-right outline-none focus:border-[#085a3a] focus:ring-2 focus:ring-[#085a3a]/20">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-[#085a3a] mb-1.5">رمز الدخول السري (PIN)</label>
+          <input type="password" id="login-pin" required placeholder="أدخل رمز الدخول السري للمشرفين" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-right outline-none focus:border-[#085a3a] focus:ring-2 focus:ring-[#085a3a]/20">
+        </div>
+
+        <button type="submit" class="w-full bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-3 rounded-xl transition text-sm shadow-md flex items-center justify-center gap-2">
+          <span>دخول لوحة التحكم الإدارية</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+
+        <div class="text-center pt-2">
+          <a href="index.html" class="text-xs text-stone-500 hover:text-[#085a3a] hover:underline inline-flex items-center gap-1">
+            <span>← العودة إلى الموقع الرئيسي</span>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Admin Dashboard Layout -->
+  <div id="admin-app" class="hidden flex-grow flex flex-col md:flex-row min-h-screen">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-[#054029] text-white flex-shrink-0 flex flex-col justify-between border-l border-emerald-800">
+      <div>
+        <!-- Sidebar Brand Header -->
+        <div class="p-5 border-b border-emerald-800/80 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[#f4b016] font-bold text-lg border border-[#f4b016]/30">
+            ASSP
+          </div>
+          <div class="text-right">
+            <h2 class="font-bold text-sm text-white">إدارة فرع الجمعية</h2>
+            <span class="text-[11px] text-emerald-300">جامعة الملك خالد</span>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-3 space-y-1 text-xs font-semibold">
+          <button onclick="navTo('overview')" id="nav-item-overview" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white transition text-right">
+            <span class="text-base">📊</span>
+            <span>نظرة عامة والإحصائيات</span>
+          </button>
+
+          <button onclick="navTo('events')" id="nav-item-events" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <span class="text-base">📅</span>
+            <span>إدارة الفعاليات والدورات</span>
+          </button>
+
+          <button onclick="navTo('knowledge')" id="nav-item-knowledge" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <div class="flex items-center gap-3">
+              <span class="text-base">🔒</span>
+              <span class="font-bold text-[#f4b016]">إدارة المعرفة (داخلي)</span>
+            </div>
+            <span class="text-[9px] bg-[#f4b016] text-[#054029] font-bold px-1.5 py-0.5 rounded">خاص</span>
+          </button>
+
+          <button onclick="navTo('registrations')" id="nav-item-registrations" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <div class="flex items-center gap-3">
+              <span class="text-base">👥</span>
+              <span>سجل المسجلين والطلبات</span>
+            </div>
+            <span id="side-reg-count" class="text-[10px] bg-emerald-700 text-white px-2 py-0.5 rounded-full">0</span>
+          </button>
+
+          <button onclick="navTo('teams')" id="nav-item-teams" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <div class="flex items-center gap-3">
+              <span class="text-base">🤝</span>
+              <span>إدارة الفرق والأعضاء</span>
+            </div>
+            <span class="text-[10px] bg-emerald-700 text-white px-2 py-0.5 rounded-full font-bold">8 فرق</span>
+          </button>
+
+          <button onclick="navTo('timer')" id="nav-item-timer" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <span class="text-base">⏱️</span>
+            <span>توقيت وبوابة التسجيل</span>
+          </button>
+
+          <button onclick="navTo('resources')" id="nav-item-resources" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <span class="text-base">📁</span>
+            <span>مكتبة المعرفة</span>
+          </button>
+
+          <button onclick="navTo('announcements')" id="nav-item-announcements" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <span class="text-base">📢</span>
+            <span>الشريط الإعلاني</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Bottom User Profile & Logout -->
+      <div class="p-4 border-t border-emerald-800/80 bg-[#032a1a]">
+        <div class="flex items-center justify-between">
+          <div class="text-right">
+            <div class="font-bold text-xs text-white">مشرف النظام</div>
+            <div class="text-[10px] text-emerald-400">admin@kku.edu.sa</div>
+          </div>
+          <button onclick="doLogout()" class="p-2 text-stone-300 hover:text-red-400 hover:bg-white/5 rounded-lg transition" title="تسجيل الخروج">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+        <div class="mt-3 pt-2 border-t border-emerald-900/60 text-center">
+          <a href="index.html" target="_blank" class="text-[11px] text-[#f4b016] hover:underline flex items-center justify-center gap-1 mb-1.5">
+            <span>عرض الموقع الحي ↗</span>
+          </a>
+          <div class="text-[9px] text-emerald-300/50 en-font leading-tight">
+            Designed &amp; developed by <a href="https://www.linkedin.com/in/othman-mohammed-alshehri-48483b3a8" target="_blank" rel="noopener noreferrer" class="text-[#f4b016] hover:underline transition inline-flex items-center gap-1" title="LinkedIn Profile: ENG.Othman Mohammed Alshehri"><span>ENG.Othman Mohammed Alshehri</span><svg class="w-2.5 h-2.5 inline-block opacity-80 text-[#0077b5] fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Area -->
+    <main class="flex-grow flex flex-col bg-slate-100 overflow-y-auto custom-scrollbar">
+      
+      <!-- Top Bar -->
+      <header class="bg-white border-b border-slate-200 py-3.5 px-6 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-20">
+        <div>
+          <h1 id="page-title" class="font-bold text-base text-slate-800">نظرة عامة والإحصائيات</h1>
+          <p id="page-desc" class="text-xs text-slate-500">لوحة المتابعة الشاملة لفرع الجمعية وإدارة السلامة والصحة المهنية</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>النظام متزامن مع الموقع</span>
+          </span>
+          <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1">
+            <span>الموقع العام</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Workspace Content -->
+      <div class="p-6 space-y-6 flex-grow">
+
+        <!-- ============================================== -->
+        <!-- VIEW 1: OVERVIEW -->
+        <!-- ============================================== -->
+        <div id="view-overview" class="view-panel space-y-6">
+          <!-- Metric Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">إجمالي المسجلين</div>
+                <div id="stat-regs" class="text-2xl font-black text-[#085a3a] mt-1">0</div>
+                <div class="text-[11px] text-emerald-600 mt-0.5">طلب تسجيل معتمد</div>
+              </div>
+              <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-700 text-2xl">👥</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">الفعاليات المنشورة</div>
+                <div id="stat-events" class="text-2xl font-black text-[#085a3a] mt-1">0</div>
+                <div class="text-[11px] text-blue-600 mt-0.5">معروضة في الموقع</div>
+              </div>
+              <div class="p-3 bg-blue-50 rounded-2xl text-blue-700 text-2xl">📅</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">ملفات إدارة المعرفة</div>
+                <div id="stat-knowledge" class="text-2xl font-black text-[#085a3a] mt-1">0</div>
+                <div class="text-[11px] text-purple-600 mt-0.5">وثيقة داخلية سرية</div>
+              </div>
+              <div class="p-3 bg-purple-50 rounded-2xl text-purple-700 text-2xl">🔒</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">حالة بوابة التسجيل</div>
+                <div id="stat-timer" class="text-sm font-black text-emerald-700 mt-2">مفتوح للجميع</div>
+                <div id="stat-timer-sub" class="text-[11px] text-stone-500 mt-0.5">الزر نشط في الموقع</div>
+              </div>
+              <div class="p-3 bg-amber-50 rounded-2xl text-amber-700 text-2xl">⏱️</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Shortcuts -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <span>⚡</span>
+                <span>إجراءات المشرفين السريعة</span>
+              </h3>
+              <div class="grid grid-cols-2 gap-3">
+                <button onclick="navTo('events')" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-right transition">
+                  <div class="text-base mb-1">➕</div>
+                  <div class="font-bold text-xs text-slate-800">إضافة فعالية جديدة</div>
+                  <div class="text-[10px] text-slate-500">نشر ورشة أو دورة</div>
+                </button>
+                <button onclick="navTo('knowledge')" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-right transition">
+                  <div class="text-base mb-1">📁</div>
+                  <div class="font-bold text-xs text-slate-800">رفع وثيقة سرية</div>
+                  <div class="text-[10px] text-slate-500">لأرشيف إدارة المعرفة</div>
+                </button>
+                <button onclick="navTo('teams')" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-right transition">
+                  <div class="text-base mb-1">🤝</div>
+                  <div class="font-bold text-xs text-slate-800">إدارة الفرق والأعضاء</div>
+                  <div class="text-[10px] text-slate-500">8 فرق (قائد ونائب)</div>
+                </button>
+                <button onclick="navTo('registrations')" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-right transition">
+                  <div class="text-base mb-1">📥</div>
+                  <div class="font-bold text-xs text-slate-800">تصدير المسجلين</div>
+                  <div class="text-[10px] text-slate-500">ملف Excel (CSV)</div>
+                </button>
+                <button onclick="navTo('timer')" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-right transition">
+                  <div class="text-base mb-1">⏱️</div>
+                  <div class="font-bold text-xs text-slate-800">تعديل مهلة التسجيل</div>
+                  <div class="text-[10px] text-slate-500">إغلاق أو جدولة الزر</div>
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <h3 class="font-bold text-sm text-slate-800 flex items-center justify-between">
+                <span>آخر المسجلين في الموقع</span>
+                <button onclick="navTo('registrations')" class="text-xs text-[#085a3a] hover:underline">عرض الكل ←</button>
+              </h3>
+              <div id="overview-recent-regs" class="space-y-2">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Vision & Mission Executive Summary Card -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-right">
+            <h3 class="font-bold text-sm text-[#085a3a] flex items-center gap-2">
+              <span>🏛️</span>
+              <span>الرؤية والرسالة والتوجه الاستراتيجي للفرع الطلابي (ASSP KKU)</span>
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4 text-xs leading-relaxed">
+              <div class="bg-[#fbf7e6] p-4 rounded-xl border border-[#ebd7a5]">
+                <div class="font-bold text-[#085a3a] flex items-center gap-1.5 mb-1 text-sm">
+                  <span>👁️</span><span>رؤيتنا</span>
+                </div>
+                <p class="text-stone-600">
+                  أن نكون فرعًا طلابيًا رائدًا في نشر ثقافة السلامة والصحة المهنية والوعي البيئي، وتمكين الطلاب بالمعرفة والمهارات والقيم المهنية التي تسهم في بناء بيئات عمل ومجتمعات أكثر أمانًا.
+                </p>
+              </div>
+              <div class="bg-[#fbf7e6] p-4 rounded-xl border border-[#ebd7a5]">
+                <div class="font-bold text-[#085a3a] flex items-center gap-1.5 mb-1 text-sm">
+                  <span>🎯</span><span>رسالتنا</span>
+                </div>
+                <p class="text-stone-600">
+                  نسعى إلى توفير فرص متميزة للطلاب في مجالات التعلم والتطوير المهني والقيادة والخبرة العملية في السلامة والصحة المهنية، من خلال إقامة الدورات والفعاليات والشراكات والمبادرات المجتمعية التي تدعم التميز الأكاديمي والمهني.
+                </p>
+              </div>
+            </div>
+            <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 font-medium">
+              <span class="font-bold">التوجه الاستراتيجي:</span> نلتزم ببناء وتطوير كفاءات طلابية مسلحة بأعلى المهارات الوقائية والمهنية، وصياغة بيئة أكاديمية ومستقبل واعد أكثر أماناً داخل كليات جامعة الملك خالد.
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: EVENTS MANAGER (Add, Edit, Delete) -->
+        <!-- ============================================== -->
+        <div id="view-events" class="view-panel hidden space-y-6">
+          <!-- Add Event Form -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-sm text-[#085a3a] mb-4 flex items-center gap-2">
+              <span class="p-1.5 bg-[#fbf7e6] rounded-lg text-[#f4b016]">➕</span>
+              <span>إضافة فعالية أو دورة تدريبية جديدة</span>
+            </h3>
+            <form onsubmit="saveNewEvent(event)" class="space-y-4 text-right">
+              <div class="grid sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">نوع الفعالية *</label>
+                  <select id="event-type" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                    <option value="ورشة تدريبية">ورشة تدريبية</option>
+                    <option value="دورة معتمدة">دورة تخصصية معتمدة</option>
+                    <option value="ندوة علمية">محاضرة / ندوة علمية</option>
+                    <option value="زيارة ميدانية">زيارة ميدانية تفقدية</option>
+                    <option value="معرض رسمي">معرض رسمي</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">الجهة المنظمة / الكلية *</label>
+                  <input type="text" id="event-organizer" required value="إدارة السلامة والصحة المهنية" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ الانعقاد *</label>
+                  <input type="text" id="event-date" required placeholder="مثال: 25 / 03 / 2026" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الفعالية أو الدورة *</label>
+                  <input type="text" id="event-title" required placeholder="مثال: تحليل مخاطر بيئة العمل وفق معايير OSHA" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">الموقع والمقر والتوقيت *</label>
+                  <input type="text" id="event-location" required placeholder="مثال: 10:00 ص - مسرح كلية الهندسة أو عن بعد" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+              </div>
+
+              <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <label class="block text-xs font-bold text-slate-700 mb-2">سعة المقاعد المتاحة للفعالية *</label>
+                <div class="grid sm:grid-cols-2 gap-3 items-center">
+                  <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                      <input type="radio" name="event-seats-choice" value="limited" checked onchange="document.getElementById('new-seats-input-box').classList.remove('hidden')">
+                      <span>مقاعد محددة</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                      <input type="radio" name="event-seats-choice" value="unlimited" onchange="document.getElementById('new-seats-input-box').classList.add('hidden')">
+                      <span>بدون حد (مفتوح للجميع)</span>
+                    </label>
+                  </div>
+                  <div id="new-seats-input-box">
+                    <input type="number" id="event-max-seats" min="1" value="50" placeholder="أدخل عدد المقاعد (مثال: 50)" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs outline-none focus:border-[#085a3a]">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">رابط استمارة التسجيل للفعالية (Google Form) *</label>
+                <input type="url" id="event-form-url" required placeholder="https://forms.gle/..." value="https://forms.gle/asspKkuEvents" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-left outline-none focus:border-[#085a3a]" dir="ltr">
+                <p class="text-[11px] text-slate-500 mt-1">أدخل رابط استمارة Google Form المخصصة لتسجيل الطلاب في هذه الفعالية</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">الوصف والمحاور الرئيسية *</label>
+                <textarea id="event-desc" required rows="2" placeholder="نبذة مختصرة عن الدورة والمهارات والشهادات المكتسبة..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]"></textarea>
+              </div>
+
+              <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                <span>نشر الفعالية فوراً في الموقع</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Published Events Table with Edit & Delete -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800">قائمة الفعاليات والدورات المنشورة</h3>
+                <p class="text-xs text-slate-500 mt-0.5">يمكنك تعديل أي فعالية، تغيير عنوانها أو تاريخها، أو حذفها بنقرة زر</p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">النوع</th>
+                    <th class="p-3.5">عنوان الفعالية</th>
+                    <th class="p-3.5">التاريخ</th>
+                    <th class="p-3.5">سعة المقاعد</th>
+                    <th class="p-3.5">استمارة التسجيل</th>
+                    <th class="p-3.5">حالة الانعقاد</th>
+                    <th class="p-3.5 text-center">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="events-table-body" class="divide-y divide-slate-200">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: KNOWLEDGE MANAGEMENT (SECRET / INTERNAL ONLY) -->
+        <!-- ============================================== -->
+        <div id="view-knowledge" class="view-panel hidden space-y-6">
+          <!-- Knowledge Hub Header Banner -->
+          <div class="bg-gradient-to-l from-[#054029] to-[#0c6b45] text-white p-6 rounded-3xl shadow-md border border-emerald-800 flex flex-wrap items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="inline-flex items-center gap-2 bg-[#f4b016] text-[#054029] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                <span>🔒 قسم داخلي محمي</span>
+                <span>• خاص بالإدارة فقط</span>
+              </div>
+              <h2 class="text-xl font-bold">إدارة المعرفة والأرشيف الإداري السري</h2>
+              <p class="text-xs text-emerald-100 max-w-2xl">
+                هذا القسم مخصص حصرياً للمشرفين لحفظ وتخزين الوثائق الداخلية، خطط السلامة الاستراتيجية، محاضر الاجتماعات، والتقارير الرقابية. **لا يمكن لأي زائر خارجي أو طالب الاطلاع على أي ملف هنا.**
+              </p>
+            </div>
+          </div>
+
+          <!-- Add Internal File Form -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-sm text-[#085a3a] mb-3 flex items-center gap-2">
+              <span class="p-1.5 bg-purple-50 rounded-lg text-purple-700">📥</span>
+              <span>أرشفة وثيقة أو ملف داخلي جديد</span>
+            </h3>
+
+            <form onsubmit="saveKnowledgeDoc(event)" class="space-y-4 text-right">
+              <div class="grid sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">تصنيف الوثيقة *</label>
+                  <select id="doc-category" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                    <option value="محاضر اجتماعات">محاضر اجتماعات الهيئة الإدارية</option>
+                    <option value="خطط استراتيجية">الخطط التشغيلية والاستراتيجية</option>
+                    <option value="تقارير رقابية">تقارير السلامة والرقابة الميدانية</option>
+                    <option value="ميزانية وعُهد">الميزانيات والتقارير المالية</option>
+                    <option value="لوائح داخلية">اللوائح والسياسات الداخلية</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">اسم / عنوان الوثيقة *</label>
+                  <input type="text" id="doc-title" required placeholder="مثال: محضر اجتماع مجلس الإدارة رقم 4 لسنة 2026" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">الصيغة والحجم *</label>
+                  <input type="text" id="doc-format" required value="PDF (1.5 MB)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات السرية وتفاصيل الوثيقة *</label>
+                  <input type="text" id="doc-notes" required placeholder="مثال: معتمد من المشرف العام ومخصص لأعضاء اللجنة التنفيذية" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">رابط الملف / التخزين السحابي (اختياري)</label>
+                  <input type="text" id="doc-link" placeholder="رابط سحابي محمي أو اتركه فارغاً للأرشفة الرقمية المباشرة" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+              </div>
+
+              <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                <span>حفظ وأرشفة الوثيقة في إدارة المعرفة</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Knowledge Base Vault Table -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>الأرشيف الرقمي للوثائق المحفوظة</span>
+                  <span id="knowledge-count-badge" class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">الملفات محفوظة محلياً وتظهر فقط في هذه اللوحة المشفرة</p>
+              </div>
+
+              <!-- Search filter -->
+              <input type="text" id="knowledge-search" oninput="filterKnowledgeBase()" placeholder="بحث في الأرشيف الداخلي..." class="bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-1.5 text-xs outline-none w-64 text-right">
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">التصنيف</th>
+                    <th class="p-3.5">عنوان الوثيقة</th>
+                    <th class="p-3.5">الصيغة</th>
+                    <th class="p-3.5">تاريخ الأرشفة</th>
+                    <th class="p-3.5">ملاحظات السرية</th>
+                    <th class="p-3.5 text-center">الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="knowledge-table-body" class="divide-y divide-slate-200">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 4: REGISTRATIONS -->
+        <!-- ============================================== -->
+        <div id="view-registrations" class="view-panel hidden space-y-6">
+          <!-- Google Form Notice Banner -->
+          <div class="bg-[#fbf7e6] p-4 sm:p-5 rounded-2xl border border-[#ebd7a5] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-right">
+            <div class="flex items-center gap-3">
+              <span class="p-2.5 bg-[#f4b016] text-[#054029] rounded-2xl text-xl font-bold">📋</span>
+              <div>
+                <h4 class="font-bold text-xs text-[#085a3a]">استمارة طلبات الانضمام للجمعية واختيار اللجان (Google Form)</h4>
+                <p class="text-[11px] text-[#53655b] mt-0.5">يتم استقبال طلبات انضمام الطلاب وتحديد رغبات اللجان لكل ترم عبر نموذج قوقل فورم المعتمد، وتُحفظ الردود تلقائياً في Google Sheets.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="openCurrentGoogleForm()" class="bg-[#085a3a] hover:bg-[#054029] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                <span>فتح استمارة قوقل فورم الحالية ↗</span>
+              </button>
+              <button onclick="navTo('timer')" class="bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap shadow-sm">
+                <span>تعديل الرابط لكل ترم ⚙️</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">سجل مسجلي الفعاليات والورش</h3>
+              <p class="text-xs text-slate-500 mt-0.5">بيانات الطلاب والزوار المسجلين في الفعاليات والورش الميدانية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportRegistrationsCSV()" class="bg-[#f4b016] hover:bg-[#dba012] text-[#054029] font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                <span>📥</span>
+                <span>تصدير إلى Excel (CSV)</span>
+              </button>
+              <button onclick="clearAllRegistrations()" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-2 rounded-xl text-xs font-bold transition">
+                مسح السجل
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">#</th>
+                    <th class="p-3.5">اسم الطالب</th>
+                    <th class="p-3.5">الرقم الجامعي</th>
+                    <th class="p-3.5">رقم الجوال</th>
+                    <th class="p-3.5">البريد الجامعي</th>
+                    <th class="p-3.5">البرنامج / الفعالية</th>
+                    <th class="p-3.5">تاريخ التسجيل</th>
+                    <th class="p-3.5 text-center">حذف</th>
+                  </tr>
+                </thead>
+                <tbody id="registrations-table-body" class="divide-y divide-slate-200">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 5: REGISTRATION TIMER / TIMING CONTROLS -->
+        <!-- ============================================== -->
+        <!-- ============================================== -->
+        <!-- VIEW: ASSOCIATION TEAMS MANAGEMENT (8 TEAMS) -->
+        <!-- ============================================== -->
+        <div id="view-teams" class="view-panel hidden space-y-6">
+          <!-- Header Banner & Controls -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <span class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-xl">👥</span>
+                <div>
+                  <h3 class="font-bold text-base text-slate-800">الهيكل التنظيمي وفرق العمل (ASSP KKU)</h3>
+                  <p class="text-xs text-slate-500">إدارة ثلاثي قادة الجمعية، قادة ونواب اللجان، وأعضاء فرق العمل مع التخصصات الأكاديمية والبيانات المعتمدة</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div class="relative w-full sm:w-72">
+                <input type="text" id="teams-search-input" oninput="renderTeamsView()" placeholder="بحث بالاسم، الفريق، التخصص، أو الرقم الجامعي..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pr-9 pl-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+                <span class="absolute right-3 top-2.5 text-slate-400 text-xs">🔍</span>
+              </div>
+              <button onclick="exportTeamsCSV()" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 whitespace-nowrap shadow-sm transition">
+                <span>📥</span>
+                <span>تصدير ملف الأعضاء (Excel)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Summary Stats Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-right">
+              <div class="text-[11px] font-bold text-slate-400">ثلاثي قادة الجمعية</div>
+              <div class="text-2xl font-black text-[#085a3a] mt-1">3</div>
+              <div class="text-[10px] text-amber-600 font-bold">قائد/ة الجمعية والشطرين</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-right">
+              <div class="text-[11px] font-bold text-slate-400">الفرق واللجان التنفيذية</div>
+              <div class="text-2xl font-black text-[#085a3a] mt-1">8</div>
+              <div class="text-[10px] text-emerald-600 font-bold">لجان عمل تخصصية</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-right">
+              <div class="text-[11px] font-bold text-slate-400">قادة ونواب الفرق</div>
+              <div id="stat-teams-leaders-count" class="text-2xl font-black text-[#085a3a] mt-1">16</div>
+              <div class="text-[10px] text-blue-600 font-bold">8 قادة + 8 نواب معتمدين</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-right">
+              <div class="text-[11px] font-bold text-slate-400">إجمالي أعضاء الفرق</div>
+              <div id="stat-teams-members-count" class="text-2xl font-black text-[#085a3a] mt-1">0</div>
+              <div class="text-[10px] text-purple-600 font-bold">عضو مسجل باللجان</div>
+            </div>
+          </div>
+
+          <!-- SECTION 1: TOP EXECUTIVE LEADERSHIP (3 SEATS) -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-right">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="p-1.5 bg-[#fbf7e6] text-[#f4b016] rounded-xl text-lg">🏛️</span>
+                <div>
+                  <h3 class="font-bold text-sm text-[#085a3a]">ثلاثي قادة الجمعية (3 مقاعد قيادية)</h3>
+                  <p class="text-[11px] text-slate-500">قائد/ة الجمعية، قائد شطر الطلاب، وقائدة شطر الطالبات</p>
+                </div>
+              </div>
+              <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full font-bold">ثلاثي قادة الجمعية</span>
+            </div>
+
+            <div id="exec-leaders-grid" class="grid sm:grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+
+          <!-- SECTION 2: TEAMS & MEMBERS (8 TEAMS) -->
+          <div class="space-y-4 text-right">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>📂</span>
+                  <span>فرق ولجان الجمعية وأعضاؤها (8 فرق)</span>
+                </h3>
+                <p class="text-[11px] text-slate-500">قادة ونواب الفرق التنفيذية وإمكانية إضافة وتعديل أعضاء كل فريق</p>
+              </div>
+            </div>
+
+            <!-- Grid of 8 Teams with Members -->
+            <div id="teams-grid" class="grid sm:grid-cols-1 lg:grid-cols-2 gap-5">
+              <!-- Dynamic team cards injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <div id="view-timer" class="view-panel hidden space-y-6">
+          
+          <!-- Card 1: Google Form Membership Link (Changes every semester) -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 bg-[#fbf7e6] text-[#f4b016] rounded-xl text-xl">📋</span>
+                <div>
+                  <h3 class="font-bold text-sm text-[#085a3a]">استمارة قوقل فورم لاستقبال طلبات الانضمام (Google Form لكل ترم)</h3>
+                  <p class="text-xs text-slate-500">يتم استقبال طلبات انضمام الطلاب وتحديد رغبات اللجان الثمانية عبر نموذج Google Form يتغير كل فصل دراسي</p>
+                </div>
+              </div>
+              <span class="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">بوابة الانضمام</span>
+            </div>
+
+            <div class="space-y-4 text-right">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">رابط نموذج Google Form الرسمي للانضمام والعضوية *</label>
+                <div class="flex gap-2">
+                  <input type="url" id="reg-google-form-url" required placeholder="https://forms.gle/XXXXXX أو https://docs.google.com/forms/..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                  <button type="button" onclick="testGoogleFormUrl()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 whitespace-nowrap" title="فتح الرابط في نافذة جديدة للتجربة">
+                    <span>تجربة الرابط ↗</span>
+                  </button>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">ضع هنا الرابط الذي تنشئه الجمعية في بداية كل ترم لاستقبال رغبات اللجان (التقني، الإعلام، الورش... إلخ).</p>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">مسمى الاستمارة أو الفصل الدراسي</label>
+                  <input type="text" id="reg-google-form-title" placeholder="استمارة الانضمام واختيار اللجان - الفصل الدراسي الثاني 2026" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">طريقة توجيه الطالب عند الضغط على الانضمام</label>
+                  <div class="grid grid-cols-2 gap-2 pt-1">
+                    <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer p-2 rounded-lg border border-slate-200 bg-slate-50">
+                      <input type="radio" name="reg-form-method" value="modal" id="method-modal" checked>
+                      <span>نافذة إرشادية</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer p-2 rounded-lg border border-slate-200 bg-slate-50">
+                      <input type="radio" name="reg-form-method" value="direct" id="method-direct">
+                      <span>تحويل فوري</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Timer & Open/Close Schedule Settings -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl space-y-5">
+            <div>
+              <h3 class="font-bold text-sm text-[#085a3a] flex items-center gap-2">
+                <span>⏱️</span>
+                <span>التحكم في توقيت وحالة زر (سجل معنا الآن)</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">حدد ما إذا كان باب التسجيل مفتوحاً للجميع، أو مجدولاً بمؤقت وتاريخ إغلاق محدد، أو مغلقاً تماماً.</p>
+            </div>
+
+            <form onsubmit="saveTimerSettings(event)" class="space-y-4 pt-3 border-t border-slate-200 text-right">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">حالة التسجيل في الموقع *</label>
+                <div class="grid sm:grid-cols-3 gap-3">
+                  <label class="border-2 border-emerald-600 bg-emerald-50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="reg-status" value="open" id="reg-open" checked>
+                    <div>
+                      <div class="font-bold text-xs text-emerald-900">مفتوح للجميع</div>
+                      <div class="text-[10px] text-emerald-700">التسجيل متاح بدون موعد</div>
+                    </div>
+                  </label>
+                  <label class="border-2 border-amber-500 bg-amber-50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="reg-status" value="scheduled" id="reg-scheduled">
+                    <div>
+                      <div class="font-bold text-xs text-amber-900">مجدول بمؤقت</div>
+                      <div class="text-[10px] text-amber-700">مؤقت تنازلي للإغلاق</div>
+                    </div>
+                  </label>
+                  <label class="border-2 border-red-500 bg-red-50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="reg-status" value="closed" id="reg-closed">
+                    <div>
+                      <div class="font-bold text-xs text-red-900">مغلق تماماً</div>
+                      <div class="text-[10px] text-red-700">يتعطل الزر ويظهر تنبيه</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">موعد إغلاق التسجيل (الموعد النهائي)</label>
+                  <input type="datetime-local" id="reg-deadline" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">النص على الزر عند الإغلاق</label>
+                  <input type="text" id="reg-closed-btn" value="التسجيل مغلق حالياً" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">الرسالة التي تظهر للطالب عند الإغلاق</label>
+                <input type="text" id="reg-closed-msg" value="نعتذر، انتهت فترة التسجيل المحددة من قبل إدارة الجمعية." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none">
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-3 px-8 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                  <span>💾</span>
+                  <span>حفظ إعدادات التسجيل ورابط قوقل فورم وتحديث الموقع</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 6: PUBLIC RESOURCES & GUIDES -->
+        <!-- ============================================== -->
+        <div id="view-resources" class="view-panel hidden space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-sm text-[#085a3a] mb-4 flex items-center gap-2">
+              <span>📁</span>
+              <span>إضافة كتيب أو ملف جديد لمكتبة المعرفة</span>
+            </h3>
+            <form onsubmit="savePublicResource(event)" class="space-y-4 text-right">
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الكتيب أو الدليل *</label>
+                  <input type="text" id="pub-res-title" required placeholder="مثال: دليل السلامة في المعامل الكيميائية" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">صيغة الملف وحجمه *</label>
+                  <input type="text" id="pub-res-format" required value="PDF (2.8 MB)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">وصف مختصر *</label>
+                <input type="text" id="pub-res-desc" required placeholder="الإرشادات المعتمدة من إدارة السلامة والصحة المهنية بالجامعة..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+              </div>
+
+              <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-md">
+                نشر الكتيب في مكتبة الموقع فوراً
+              </button>
+            </form>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-200">
+              <h3 class="font-bold text-sm text-slate-800">الملفات المعروضة للطلاب والزوار في مكتبة المعرفة</h3>
+            </div>
+            <div id="pub-resources-table" class="p-5 space-y-2">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 7: ANNOUNCEMENTS -->
+        <!-- ============================================== -->
+        <div id="view-announcements" class="view-panel hidden space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl space-y-4">
+            <h3 class="font-bold text-sm text-[#085a3a] flex items-center gap-2">
+              <span>📢</span>
+              <span>تعديل الإعلانات والشريط العلوي في الموقع</span>
+            </h3>
+
+            <form onsubmit="saveAnnouncement(event)" class="space-y-4 pt-3 border-t border-slate-200 text-right">
+              <div class="flex items-center gap-3">
+                <input type="checkbox" id="ann-enabled" checked class="w-4 h-4 text-emerald-600 rounded">
+                <label for="ann-enabled" class="text-xs font-bold text-slate-700">تفعيل ظهور الشريط الإعلاني في أعلى الموقع</label>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">نص الإعلان المعروض *</label>
+                <textarea id="ann-text" rows="3" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs outline-none focus:border-[#085a3a]"></textarea>
+              </div>
+
+              <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-md">
+                تحديث الإعلان في الموقع
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal for Editing an Event -->
+  <div id="edit-event-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xl w-full border border-slate-300 shadow-2xl overflow-hidden text-right">
+      <div class="bg-[#085a3a] p-5 text-white flex items-center justify-between">
+        <h3 class="font-bold text-sm flex items-center gap-2">
+          <span>✏️</span>
+          <span>تعديل بيانات الفعالية المنشورة</span>
+        </h3>
+        <button onclick="closeEditModal()" class="text-white/70 hover:text-white text-xl">✕</button>
+      </div>
+
+      <form onsubmit="saveEditedEvent(event)" class="p-6 space-y-4">
+        <input type="hidden" id="edit-event-id">
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">نوع الفعالية</label>
+            <select id="edit-event-type" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs outline-none">
+              <option value="ورشة تدريبية">ورشة تدريبية</option>
+              <option value="دورة معتمدة">دورة معتمدة</option>
+              <option value="ندوة علمية">ندوة علمية</option>
+              <option value="معرض رسمي">معرض رسمي</option>
+              <option value="زيارة ميدانية">زيارة ميدانية</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الجهة المنظمة</label>
+            <input type="text" id="edit-event-organizer" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الفعالية</label>
+          <input type="text" id="edit-event-title" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs outline-none">
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">التاريخ</label>
+            <input type="text" id="edit-event-date" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الموقع والمقر والتوقيت</label>
+            <input type="text" id="edit-event-location" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs outline-none">
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <label class="block text-xs font-bold text-slate-700 mb-2">سعة المقاعد المتاحة للفعالية *</label>
+          <div class="grid sm:grid-cols-2 gap-3 items-center">
+            <div class="flex items-center gap-4">
+              <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="edit-event-seats-type" value="limited" id="edit-seats-limited" onchange="document.getElementById('edit-seats-input-box').classList.remove('hidden')">
+                <span>مقاعد محددة</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="edit-event-seats-type" value="unlimited" id="edit-seats-unlimited" onchange="document.getElementById('edit-seats-input-box').classList.add('hidden')">
+                <span>بدون حد (مفتوح للجميع)</span>
+              </label>
+            </div>
+            <div id="edit-seats-input-box">
+              <input type="number" id="edit-event-max-seats" min="1" value="50" placeholder="عدد المقاعد" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">رابط استمارة التسجيل للفعالية (Google Form) *</label>
+          <input type="url" id="edit-event-form-url" required placeholder="https://forms.gle/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-left outline-none" dir="ltr">
+          <p class="text-[11px] text-slate-500 mt-1">تحديث رابط Google Form المخصص لتسجيل الطلاب في هذه الفعالية</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">الوصف والمحاور</label>
+          <textarea id="edit-event-desc" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="submit" class="flex-1 bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+            حفظ التعديلات في الموقع
+          </button>
+          <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-bold text-xs hover:bg-slate-100">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Top Executive Leader Modal -->
+  <div id="edit-exec-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 text-right">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+        <div class="flex items-center gap-3">
+          <span id="edit-exec-icon" class="text-2xl p-2 bg-amber-50 rounded-xl">👑</span>
+          <div>
+            <h3 id="edit-exec-title" class="font-black text-slate-800 text-base">تعديل بيانات المنصب القيادي</h3>
+            <span class="text-xs text-slate-500">تحديث بيانات منصب ثلاثي قادة الجمعية</span>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditExecModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl text-lg hover:bg-slate-100 transition">✕</button>
+      </div>
+
+      <form onsubmit="saveEditedExec(event)" class="space-y-4">
+        <input type="hidden" id="edit-exec-key">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل *</label>
+          <input type="text" id="edit-exec-name" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">التخصص الدراسي *</label>
+            <input type="text" id="edit-exec-major" required placeholder="مثال: الهندسة الصناعية" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الرقم الجامعي *</label>
+            <input type="text" id="edit-exec-id" required placeholder="44XXXXXXXX" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الجوال *</label>
+            <input type="tel" id="edit-exec-phone" required placeholder="05XXXXXXXX" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني الجامعي *</label>
+            <input type="email" id="edit-exec-email" required placeholder="name@kku.edu.sa" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeEditExecModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-bold transition">إلغاء</button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#085a3a] hover:bg-[#054029] text-white text-xs font-bold shadow-md transition">حفظ التغييرات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Team Leadership Modal (Leader & Deputy with Major) -->
+  <div id="edit-team-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-right">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+        <div class="flex items-center gap-3">
+          <span id="edit-team-icon" class="text-2xl p-2 bg-emerald-50 rounded-xl">👥</span>
+          <div>
+            <h3 id="edit-team-title" class="font-black text-slate-800 text-base">تعديل قيادة الفريق</h3>
+            <span class="text-xs text-slate-500">تحديث بيانات قائد ونائب الفريق والتخصص الدراسي</span>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditTeamModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl text-lg hover:bg-slate-100 transition">✕</button>
+      </div>
+
+      <form onsubmit="saveEditedTeam(event)" class="space-y-6">
+        <input type="hidden" id="edit-team-id">
+
+        <!-- Team Leader Section -->
+        <div class="p-5 rounded-2xl bg-[#fbf7e6]/60 border border-[#ebd7a5] space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="p-1.5 bg-[#f4b016] text-[#054029] rounded-lg text-sm font-bold">👑</span>
+              <h4 class="font-bold text-sm text-[#085a3a]">بيانات قائد الفريق (Team Leader)</h4>
+            </div>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">المنصب القيادي الأول</span>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">اسم القائد الكامل *</label>
+              <input type="text" id="edit-leader-name" required placeholder="الاسم الكامل" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">التخصص الدراسي *</label>
+              <input type="text" id="edit-leader-major" required placeholder="مثال: الهندسة الصناعية" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">الرقم الجامعي *</label>
+              <input type="text" id="edit-leader-id" required placeholder="44XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">رقم الجوال *</label>
+              <input type="tel" id="edit-leader-phone" required placeholder="05XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">البريد الإلكتروني الجامعي *</label>
+              <input type="email" id="edit-leader-email" required placeholder="username@kku.edu.sa" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Deputy Section -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="p-1.5 bg-blue-600 text-white rounded-lg text-sm font-bold">⭐</span>
+              <h4 class="font-bold text-sm text-slate-800">بيانات نائب قائد الفريق (Team Deputy)</h4>
+            </div>
+            <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">المنصب القيادي الثاني</span>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">اسم النائب الكامل *</label>
+              <input type="text" id="edit-deputy-name" required placeholder="الاسم الكامل" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">التخصص الدراسي *</label>
+              <input type="text" id="edit-deputy-major" required placeholder="مثال: علوم الحاسب" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">الرقم الجامعي *</label>
+              <input type="text" id="edit-deputy-id" required placeholder="44XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">رقم الجوال *</label>
+              <input type="tel" id="edit-deputy-phone" required placeholder="05XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">البريد الإلكتروني الجامعي *</label>
+              <input type="email" id="edit-deputy-email" required placeholder="username@kku.edu.sa" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#085a3a]">
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeEditTeamModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-bold transition">إلغاء</button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#085a3a] hover:bg-[#054029] text-white text-xs font-bold shadow-md transition">حفظ التغييرات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Team Member Modal -->
+  <div id="member-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 text-right">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+        <div class="flex items-center gap-3">
+          <span id="member-modal-icon" class="text-2xl p-2 bg-purple-50 rounded-xl">👤</span>
+          <div>
+            <h3 id="member-modal-title" class="font-black text-slate-800 text-base">إضافة عضو جديد للفريق</h3>
+            <span id="member-modal-subtitle" class="text-xs text-slate-500">تسجيل عضو جديد مع كافة بياناته وتخصصه</span>
+          </div>
+        </div>
+        <button type="button" onclick="closeMemberModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl text-lg hover:bg-slate-100 transition">✕</button>
+      </div>
+
+      <form onsubmit="saveMember(event)" class="space-y-4">
+        <input type="hidden" id="member-modal-team-id">
+        <input type="hidden" id="member-modal-id">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل للعضو *</label>
+          <input type="text" id="member-modal-name" required placeholder="مثال: طارق فهد الأحمري" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">التخصص الدراسي *</label>
+            <input type="text" id="member-modal-major" required placeholder="مثال: هندسة البرمجيات" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الرقم الجامعي *</label>
+            <input type="text" id="member-modal-studentid" required placeholder="44XXXXXXXX" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الجوال *</label>
+            <input type="tel" id="member-modal-phone" required placeholder="05XXXXXXXX" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني الجامعي *</label>
+            <input type="email" id="member-modal-email" required placeholder="name@kku.edu.sa" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">المهمة أو الدور بالفريق (اختياري)</label>
+          <input type="text" id="member-modal-role" placeholder="مثال: مطور ويب، مصمم موشن، منسق ميداني..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeMemberModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-bold transition">إلغاء</button>
+          <button type="submit" id="member-modal-submit-btn" class="px-6 py-2.5 rounded-xl bg-[#085a3a] hover:bg-[#054029] text-white text-xs font-bold shadow-md transition">حفظ العضو</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Resource Modal -->
+  <div id="edit-resource-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 text-right">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl p-2 bg-emerald-50 rounded-xl">📁</span>
+          <div>
+            <h3 class="font-black text-slate-800 text-base">تعديل ملف في مكتبة المعرفة</h3>
+            <span class="text-xs text-slate-500">تحديث تفاصيل الكتيب أو الدليل المنشور بالموقع</span>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditResourceModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl text-lg hover:bg-slate-100 transition">✕</button>
+      </div>
+
+      <form onsubmit="saveEditedResource(event)" class="space-y-4">
+        <input type="hidden" id="edit-res-id">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الكتيب أو الدليل *</label>
+          <input type="text" id="edit-res-title" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">صيغة الملف وحجمه *</label>
+          <input type="text" id="edit-res-format" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">وصف مختصر *</label>
+          <textarea id="edit-res-desc" rows="3" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a] resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeEditResourceModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-bold transition">إلغاء</button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#085a3a] hover:bg-[#054029] text-white text-xs font-bold shadow-md transition">حفظ التعديلات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+    <div class="bg-[#054029] text-white px-5 py-3.5 rounded-2xl shadow-2xl border-2 border-[#f4b016] flex items-center gap-3">
+      <div id="toast-icon" class="text-xl">✅</div>
+      <div>
+        <div id="toast-title" class="font-bold text-xs text-[#f4b016]">لوحة التحكم</div>
+        <div id="toast-msg" class="text-xs text-white/90">تم حفظ الإجراء بنجاح</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard JavaScript Logic -->
+  <script>
+    const SECRET_PIN = "A3SSP8";
+
+    // Initial Knowledge Base Default Documents
+    const INITIAL_KNOWLEDGE_DOCS = [
+      {
+        id: 'kb-1',
+        category: 'محاضر اجتماعات',
+        title: 'محضر الاجتماع التأسيسي لمجلس إدارة الفرع الطلابي 2026',
+        format: 'PDF (1.8 MB)',
+        notes: 'خاص بالمشرفين - تفويض المهام وتشكيل اللجان الفنية',
+        date: '2026-01-15'
+      },
+      {
+        id: 'kb-2',
+        category: 'خطط استراتيجية',
+        title: 'الخطة السنوية لبرامج السلامة والصحة المهنية المشتركة مع الجامعة',
+        format: 'PDF (3.2 MB)',
+        notes: 'الجدول الزمني للاعتماد ومؤشرات الأداء التشغيلية KPIs',
+        date: '2026-02-01'
+      },
+      {
+        id: 'kb-3',
+        category: 'تقارير رقابية',
+        title: 'تقرير الجولات التفتيشية الميدانية على المعامل الهندسية - الربع الأول',
+        format: 'PDF (2.4 MB)',
+        notes: 'سري للغاية - حصر المخاطر الكيميائية وتوصيات التدخل',
+        date: '2026-02-28'
+      }
+    ];
+
+    const DEFAULT_EVENTS = [
+      {
+        id: 'default-1',
+        type: 'معرض رسمي',
+        date: '25 / 10 / 2026',
+        organizer: 'جامعة الملك خالد',
+        title: 'معرض الكيانات الطلابية للسلامة والوقاية',
+        description: 'مشاركة الجمعية في معرض الكيانات الطلابية السنوي لعرض أحدث معدات السلامة المهنية وتقنيات الإطفاء ومحاكاة خطط الطوارئ.',
+        location: 'البهو الرئيسي - المجمع الأكاديمي (القريقر)',
+        time: '9:00 صباحاً - 2:00 ظهراً',
+        seatsType: 'limited',
+        maxSeats: 100,
+        formUrl: 'https://forms.gle/assp-exhibition-2026',
+        isDefault: true
+      },
+      {
+        id: 'default-2',
+        type: 'ملتقى رسمي',
+        date: '15 / 11 / 2026',
+        organizer: 'فرع الجمعية (ASSP KKU)',
+        title: 'الملتقى السنوي للسلامة والصحة المهنية 2026',
+        description: 'جلسات حوارية وورش تفاعلية يقدمها نخبة من خبراء السلامة والبيئة ومسؤولي إدارة الأزمات والمخاطر بالمملكة.',
+        location: 'مسرح الجامعة الرئيسي - لعصان',
+        time: '10:00 صباحاً - 3:00 عصراً',
+        seatsType: 'unlimited',
+        maxSeats: null,
+        formUrl: 'https://forms.gle/assp-annual-forum-2026',
+        isDefault: true
+      },
+      {
+        id: 'default-3',
+        type: 'ورشة تدريبية',
+        date: '18 / 02 / 2026',
+        organizer: 'كلية الهندسة',
+        title: 'تقييم المخاطر في المعامل الهندسية',
+        description: 'تدريب عملي على منهجيات الـ HAZOP وتحديد المخاطر الكيميائية والميكانيكية في بيئات المعامل والمصانع.',
+        location: 'مسرح كلية الهندسة',
+        time: '11:00 صباحاً (ساعتان معتمدة)',
+        seatsType: 'limited',
+        maxSeats: 30,
+        formUrl: 'https://forms.gle/assp-hazop-workshop-2026',
+        isDefault: true
+      },
+      {
+        id: 'default-4',
+        type: 'محاضرة افتراضية',
+        date: '05 / 03 / 2026',
+        organizer: 'إدارة السلامة والصحة المهنية',
+        title: 'مقدمة في معايير السلامة OSHA',
+        description: 'نظرة شاملة حول اشتراطات منظمة السلامة والصحة المهنية الأمريكية وكيفية تطبيقها في المشاريع الهندسية والمنشآت.',
+        location: 'عبر منصة زووم (عن بُعد)',
+        time: '7:00 مساءً',
+        seatsType: 'unlimited',
+        maxSeats: null,
+        formUrl: 'https://forms.gle/assp-osha-lecture-2026',
+        isDefault: true
+      }
+    ];
+
+    
+    const DEFAULT_EXEC_LEADERS = [
+      {
+        key: 'president',
+        title: 'قائد/ة الجمعية',
+        icon: '👑',
+        badge: 'القيادة العامة للفرع',
+        name: 'م. عثمان محمد الشهري',
+        major: 'الهندسة الصناعية (Industrial Engineering)',
+        studentId: '442801122',
+        phone: '0550001122',
+        email: 'o.alshehri@kku.edu.sa'
+      },
+      {
+        key: 'male_leader',
+        title: 'قائد شطر الطلاب',
+        icon: '👔',
+        badge: 'شطر الطلاب',
+        name: 'عبدالعزيز خالد القحطاني',
+        major: 'الهندسة الميكانيكية (Mechanical Engineering)',
+        studentId: '442803311',
+        phone: '0550003311',
+        email: 'a.alqahtani@kku.edu.sa'
+      },
+      {
+        key: 'female_leader',
+        title: 'قائدة شطر الطالبات',
+        icon: '🧕',
+        badge: 'شطر الطالبات',
+        name: 'سارة فهد العسيري',
+        major: 'هندسة السلامة والصحة المهنية (Safety Engineering)',
+        studentId: '442804422',
+        phone: '0550004422',
+        email: 's.alasiri@kku.edu.sa'
+      }
+    ];
+
+    const DEFAULT_TEAMS = [
+      {
+        id: 'team-tech',
+        name: 'الفريق التقني',
+        icon: '💻',
+        category: 'التقنية والبرمجيات',
+        desc: 'إدارة وتطوير المنصة الرقمية، الدعم الفني للفعاليات، وحلول التحول الرقمي لنشاطات الجمعية.',
+        leader: {
+          name: 'م. عثمان محمد الشهري',
+          major: 'الهندسة الصناعية',
+          studentId: '442801122',
+          phone: '0550001122',
+          email: 'o.alshehri@kku.edu.sa'
+        },
+        deputy: {
+          name: 'ريان أحمد الغامدي',
+          major: 'علوم الحاسب',
+          studentId: '442801123',
+          phone: '0550001123',
+          email: 'r.alghamdi@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-tech-1',
+            name: 'طارق فهد الأحمري',
+            major: 'هندسة البرمجيات',
+            studentId: '443801201',
+            phone: '0551112233',
+            email: 't.alahmari@kku.edu.sa',
+            role: 'مطور واجهات وتطبيقات'
+          },
+          {
+            id: 'mem-tech-2',
+            name: 'شهد عبدالكريم الشهري',
+            major: 'نظم المعلومات',
+            studentId: '443801202',
+            phone: '0551112234',
+            email: 's.alshehri@kku.edu.sa',
+            role: 'إدارة قواعد البيانات والدعم الفني'
+          }
+        ]
+      },
+      {
+        id: 'team-media',
+        name: 'فريق الإعلام والتصميم',
+        icon: '🎨',
+        category: 'الإعلام والاتصال',
+        desc: 'صناعة الهوية البصرية، إنتاج المواد الإعلامية والموشن جرافيك، وإدارة الحملات الرقمية.',
+        leader: {
+          name: 'رغد إبراهيم عسيري',
+          major: 'الإعلام الرقمي',
+          studentId: '442802233',
+          phone: '0550002233',
+          email: 'r.asiri@kku.edu.sa'
+        },
+        deputy: {
+          name: 'خالد عبدالكريم القحطاني',
+          major: 'التصميم الجرافيكي',
+          studentId: '442802234',
+          phone: '0550002234',
+          email: 'k.alqahtani@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-media-1',
+            name: 'نورة عبدالله الشهراني',
+            major: 'الاتصال التسويقي',
+            studentId: '443802201',
+            phone: '0552223344',
+            email: 'n.shahrani@kku.edu.sa',
+            role: 'تصميم البوسترات والمطبوعات'
+          },
+          {
+            id: 'mem-media-2',
+            name: 'فهد صالح القرني',
+            major: 'الإذاعة والتلفزيون',
+            studentId: '443802202',
+            phone: '0552223345',
+            email: 'f.alqarni@kku.edu.sa',
+            role: 'تصوير وتغطيات ميدانية'
+          }
+        ]
+      },
+      {
+        id: 'team-pr',
+        name: 'فريق العلاقات العامة',
+        icon: '🤝',
+        category: 'التواصل والشراكات',
+        desc: 'بناء الشراكات الأكاديمية والمؤسسية، التنسيق مع الرعاة، والتواصل الخارجي والبروتوكول.',
+        leader: {
+          name: 'فيصل مشبب الأحمري',
+          major: 'إدارة الأعمال',
+          studentId: '442803344',
+          phone: '0550003344',
+          email: 'f.alahmari@kku.edu.sa'
+        },
+        deputy: {
+          name: 'لمى صالح العمري',
+          major: 'العلاقات العامة',
+          studentId: '442803345',
+          phone: '0550003345',
+          email: 'l.alomari@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-pr-1',
+            name: 'سطام محمد الدوسري',
+            major: 'الإدارة العامة',
+            studentId: '443803201',
+            phone: '0553334455',
+            email: 's.aldosari@kku.edu.sa',
+            role: 'التواصل مع الرعاة والجهات الشريكة'
+          }
+        ]
+      },
+      {
+        id: 'team-reports',
+        name: 'فريق التقارير',
+        icon: '📊',
+        category: 'التوثيق والإحصاء',
+        desc: 'توثيق الفعاليات، كتابة التقارير الفصلية والسنوية، وقياس مؤشرات الأداء والإنجاز.',
+        leader: {
+          name: 'عبدالعزيز سعيد البشري',
+          major: 'الهندسة الصناعية',
+          studentId: '442804455',
+          phone: '0550004455',
+          email: 'a.albeshri@kku.edu.sa'
+        },
+        deputy: {
+          name: 'شهد يحيى الوادعي',
+          major: 'الإحصاء وبحوث العمليات',
+          studentId: '442804456',
+          phone: '0550004456',
+          email: 's.alwadei@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-rep-1',
+            name: 'مشاري علي القحطاني',
+            major: 'الهندسة المدنية',
+            studentId: '443804201',
+            phone: '0554445566',
+            email: 'm.alqahtani@kku.edu.sa',
+            role: 'صياغة وتدقيق التقارير الدورية'
+          }
+        ]
+      },
+      {
+        id: 'team-workshops',
+        name: 'فريق الورش',
+        icon: '🔧',
+        category: 'التدريب والتطوير',
+        desc: 'إعداد الحقائب التدريبية المتخصصة، التنسيق مع المحاضرين، وتنظيم الدورات العلمية.',
+        leader: {
+          name: 'ماجد حسن السفياني',
+          major: 'هندسة السلامة المهنية',
+          studentId: '442805566',
+          phone: '0550005566',
+          email: 'm.alsufyani@kku.edu.sa'
+        },
+        deputy: {
+          name: 'أروى سعد المالكي',
+          major: 'الهندسة الكيميائية',
+          studentId: '442805567',
+          phone: '0550005567',
+          email: 'a.almalki@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-ws-1',
+            name: 'بندر خالد الشهري',
+            major: 'الهندسة الميكانيكية',
+            studentId: '443805201',
+            phone: '0555556677',
+            email: 'b.alshehri@kku.edu.sa',
+            role: 'تنسيق المدربين والمحتوى العلمي'
+          }
+        ]
+      },
+      {
+        id: 'team-quality',
+        name: 'فريق الجودة والتطوير',
+        icon: '✨',
+        category: 'الجودة والامتثال',
+        desc: 'ضمان التوافق مع معايير ASSP العالمية، استطلاع آراء المستفيدين، وتطوير المبادرات.',
+        leader: {
+          name: 'تركي ناصر الدوسري',
+          major: 'الهندسة الصناعية ونظم الجودة',
+          studentId: '442806677',
+          phone: '0550006677',
+          email: 't.aldosari@kku.edu.sa'
+        },
+        deputy: {
+          name: 'منيرة فهد الشهري',
+          major: 'إدارة الجودة والاعتماد الأكاديمي',
+          studentId: '442806678',
+          phone: '0550006678',
+          email: 'm.alshehri@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-qual-1',
+            name: 'ريم مسفر القحطاني',
+            major: 'هندسة النظم',
+            studentId: '443806201',
+            phone: '0556667788',
+            email: 'r.alqahtani@kku.edu.sa',
+            role: 'تحليل استبانات تقييم البرامج'
+          }
+        ]
+      },
+      {
+        id: 'team-events',
+        name: 'فريق إدارة الفعاليات',
+        icon: '🎪',
+        category: 'التنظيم الميداني',
+        desc: 'الإشراف الميداني واللوجستي، إدارة المعارض والملتقيات، وتنظيم تدفق الحضور وسلامتهم.',
+        leader: {
+          name: 'سلطان منصور الزهراني',
+          major: 'الهندسة المدنية',
+          studentId: '442807788',
+          phone: '0550007788',
+          email: 's.alzahrani@kku.edu.sa'
+        },
+        deputy: {
+          name: 'هيفاء عادل القحطاني',
+          major: 'إدارة الفعاليات والمعارض',
+          studentId: '442807789',
+          phone: '0550007789',
+          email: 'h.alqahtani@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-ev-1',
+            name: 'وليد سالم الشهري',
+            major: 'الهندسة الكهربائية',
+            studentId: '443807201',
+            phone: '0557778899',
+            email: 'w.alshehri@kku.edu.sa',
+            role: 'التجهيزات اللوجستية وإدارة المسرح'
+          },
+          {
+            id: 'mem-ev-2',
+            name: 'أثير محمد العسيري',
+            major: 'إدارة الضيافة',
+            studentId: '443807202',
+            phone: '0557778890',
+            email: 'a.alasiri@kku.edu.sa',
+            role: 'تنظيم الاستقبال ومسارات الحضور'
+          }
+        ]
+      },
+      {
+        id: 'team-memberships',
+        name: 'فريق تنسيق العضويات',
+        icon: '🪪',
+        category: 'شؤون الأعضاء',
+        desc: 'استقبال طلبات العضوية، تدقيق بيانات الطلاب، توجيه الأعضاء الجدد، وبناء قاعدة البيانات.',
+        leader: {
+          name: 'ناصر سالم الهاجري',
+          major: 'إدارة الموارد البشرية',
+          studentId: '442808899',
+          phone: '0550008899',
+          email: 'n.alhajri@kku.edu.sa'
+        },
+        deputy: {
+          name: 'نورة حمد اليامي',
+          major: 'إدارة الأعمال',
+          studentId: '442808890',
+          phone: '0550008890',
+          email: 'n.alyami@kku.edu.sa'
+        },
+        members: [
+          {
+            id: 'mem-mem-1',
+            name: 'يوسف أحمد الغامدي',
+            major: 'نظم المعلومات الإدارية',
+            studentId: '443808201',
+            phone: '0558889900',
+            email: 'y.alghamdi@kku.edu.sa',
+            role: 'تدقيق بيانات العضويات وإصدار البطاقات'
+          }
+        ]
+      }
+    ];
+
+    const DEFAULT_PUBLIC_RESOURCES = [
+      { id: 'res-1', title: 'دليل السلامة والصحة المهنية الشامل', desc: 'الإرشادات العامة للوقاية من الحوادث ومخاطر بيئة العمل المعتمدة بالجامعة.', format: 'PDF (3.4 MB)', isDefault: true },
+      { id: 'res-2', title: 'خطة الإخلاء والاستجابة للطوارئ', desc: 'مسارات الهروب ونقاط التجمع الآمنة في مباني جامعة الملك خالد المختلفة.', format: 'PDF (1.8 MB)', isDefault: true },
+      { id: 'res-3', title: 'كتيب الإسعافات الأولية الميداني', desc: 'إرشادات التدخل السريع للإصابات الشائعة والحروق قبل وصول الفريق الطبي.', format: 'PDF (4.1 MB)', isDefault: true },
+      { id: 'res-4', title: 'لائحة معدات الوقاية الشخصية (PPE)', desc: 'المعايير المعتمدة للخوذ والنظارات الواقية والقفازات وفق كود OSHA.', format: 'PDF (2.0 MB)', isDefault: true }
+    ];
+
+    const DEFAULT_REGISTRATIONS = [
+      {
+        id: 'reg-1',
+        name: 'سارة فهد القحطاني',
+        studentId: '442801923',
+        phone: '0551234567',
+        email: 'sara.qahtani@kku.edu.sa',
+        program: 'عضوية فرع الجمعية (ASSP KKU)',
+        date: '2026-02-15 11:30'
+      },
+      {
+        id: 'reg-2',
+        name: 'محمد علي عسيري',
+        studentId: '441803411',
+        phone: '0509876543',
+        email: 'm.asiri@kku.edu.sa',
+        program: 'ورشة تقييم المخاطر في المعامل الهندسية',
+        date: '2026-02-18 14:15'
+      },
+      {
+        id: 'reg-3',
+        name: 'عبدالله محمد الشهراني',
+        studentId: '443809112',
+        phone: '0543322114',
+        email: 'a.shahrani@kku.edu.sa',
+        program: 'معرض الكيانات الطلابية للسلامة والوقاية',
+        date: '2026-02-20 09:40'
+      }
+    ];
+    const INITIAL_REGISTRATIONS = DEFAULT_REGISTRATIONS;
+
+    // Helper to read/write localStorage
+    function getStored(key, fallback) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : fallback;
+      } catch(e) {
+        return fallback;
+      }
+    }
+    function setStored(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function showToast(msg, title = 'لوحة التحكم', icon = '✅') {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-icon').textContent = icon;
+      t.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      t.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        t.classList.remove('translate-y-0', 'opacity-100');
+        t.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3500);
+    }
+
+    // Authentication Logic
+    function processLogin(e) {
+      e.preventDefault();
+      const pin = document.getElementById('login-pin').value.trim();
+      const err = document.getElementById('login-err-msg');
+
+      if (pin === SECRET_PIN) {
+        localStorage.setItem('assp_admin_logged_in', 'true');
+        err.classList.add('hidden');
+        document.getElementById('login-gate').classList.add('hidden');
+        document.getElementById('admin-app').classList.remove('hidden');
+        initDashboard();
+        showToast('مرحباً بك في لوحة تحكم إدارة فرع الجمعية', 'دخول معتمد', '👑');
+      } else {
+        err.textContent = 'رمز الدخول غير صحيح، يرجى المحاولة مرة أخرى.';
+        err.classList.remove('hidden');
+      }
+    }
+
+    function doLogout() {
+      localStorage.removeItem('assp_admin_logged_in');
+      document.getElementById('admin-app').classList.add('hidden');
+      document.getElementById('login-gate').classList.remove('hidden');
+      document.getElementById('login-pin').value = '';
+    }
+
+    // View Navigation
+    function navTo(viewName) {
+      const views = ['overview', 'events', 'knowledge', 'registrations', 'teams', 'timer', 'resources', 'announcements'];
+      views.forEach(v => {
+        const p = document.getElementById('view-' + v);
+        const nav = document.getElementById('nav-item-' + v);
+        if (p) p.classList.toggle('hidden', v !== viewName);
+        if (nav) {
+          if (v === viewName) {
+            nav.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white transition text-right';
+          } else {
+            nav.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right';
+          }
+        }
+      });
+
+      const titles = {
+        'overview': ['نظرة عامة والإحصائيات', 'لوحة المتابعة الشاملة لفرع الجمعية وإدارة السلامة والصحة المهنية'],
+        'events': ['إدارة الفعاليات والدورات', 'إضافة، تعديل، أو حذف الفعاليات المنشورة في الموقع'],
+        'knowledge': ['إدارة المعرفة (الأرشيف الداخلي السري)', 'مستودع الوثائق والملفات الإدارية والتقارير الخاصة بالإدارة فقط'],
+        'registrations': ['سجل المسجلين والطلبات', 'عرض وتعديل وتصدير بيانات الطلاب المسجلين'],
+        'timer': ['توقيت وبوابة التسجيل', 'التحكم في حالة زر التسجيل وتحديد مهلة الإغلاق والمؤقت'],
+        'resources': ['مكتبة المعرفة', 'إضافة وحذف الكتيبات والملفات المتاحة للطلاب والزوار في الموقع'],
+        'announcements': ['الشريط الإعلاني', 'تخصيص الإعلان الإخباري المعروض في أعلى الموقع'],
+        'teams': ['إدارة الفرق والأعضاء', 'ثلاثي قادة الجمعية، قادة ونواب اللجان، وأعضاء فرق العمل']
+      };
+
+      if (viewName === 'teams') renderTeamsView();
+      if (titles[viewName]) {
+        document.getElementById('page-title').textContent = titles[viewName][0];
+        document.getElementById('page-desc').textContent = titles[viewName][1];
+      }
+    }
+
+    // Initialization
+    function initDashboard() {
+      renderOverview();
+      renderEventsTable();
+      renderKnowledgeBase();
+      renderRegistrationsTable();
+      loadTimerSettings();
+      renderPublicResources();
+      loadAnnouncementSettings();
+      renderTeamsView();
+    }
+
+    // 1. Overview
+    function renderOverview() {
+      const regs = getStored('assp_registrations', []);
+      const events = [...getStored('assp_custom_events', []), ...DEFAULT_EVENTS];
+      const kb = getStored('assp_knowledge_docs', INITIAL_KNOWLEDGE_DOCS);
+      const timer = getStored('assp_reg_settings', { status: 'open' });
+
+      document.getElementById('stat-regs').textContent = regs.length;
+      document.getElementById('stat-events').textContent = events.length;
+      document.getElementById('stat-knowledge').textContent = kb.length;
+      document.getElementById('side-reg-count').textContent = regs.length;
+
+      const timerElem = document.getElementById('stat-timer');
+      const timerSub = document.getElementById('stat-timer-sub');
+      if (timer.status === 'open') {
+        timerElem.textContent = 'مفتوح للجميع';
+        timerElem.className = 'text-sm font-black text-emerald-700 mt-2';
+        timerSub.textContent = 'الزر نشط في الموقع';
+      } else if (timer.status === 'closed') {
+        timerElem.textContent = 'التسجيل مغلق';
+        timerElem.className = 'text-sm font-black text-red-700 mt-2';
+        timerSub.textContent = 'الزر معطل ويظهر تنبيه';
+      } else {
+        timerElem.textContent = 'مجدول بمؤقت';
+        timerElem.className = 'text-sm font-black text-amber-700 mt-2';
+        timerSub.textContent = 'ينتهي في الموعد المحدد';
+      }
+
+      // Recent registrations
+      const recentBox = document.getElementById('overview-recent-regs');
+      if (regs.length === 0) {
+        recentBox.innerHTML = '<div class="text-xs text-stone-500 py-3 text-center">لا توجد تسجيلات حديثة</div>';
+      } else {
+        recentBox.innerHTML = regs.slice(0, 3).map(r => `
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+            <div>
+              <div class="font-bold text-slate-800">${r.name}</div>
+              <div class="text-[10px] text-slate-500">${r.program} • ${r.phone}</div>
+            </div>
+            <span class="text-[10px] text-stone-400 en-font">${r.date || ''}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ----------------------------------------
+    // Date & Event Management Helpers
+    // ----------------------------------------
+    function parseEventDate(dateStr) {
+      if (!dateStr) return null;
+      const dmyMatch = dateStr.match(/^(\d{1,2})\s*[\/\-]\s*(\d{1,2})\s*[\/\-]\s*(\d{4})/);
+      if (dmyMatch) {
+        const day = parseInt(dmyMatch[1], 10);
+        const month = parseInt(dmyMatch[2], 10) - 1;
+        const year = parseInt(dmyMatch[3], 10);
+        return new Date(year, month, day, 23, 59, 59);
+      }
+      const ymdMatch = dateStr.match(/^(\d{4})\s*[\/\-]\s*(\d{1,2})\s*[\/\-]\s*(\d{1,2})/);
+      if (ymdMatch) {
+        const year = parseInt(ymdMatch[1], 10);
+        const month = parseInt(ymdMatch[2], 10) - 1;
+        const day = parseInt(ymdMatch[3], 10);
+        return new Date(year, month, day, 23, 59, 59);
+      }
+      const parsed = new Date(dateStr);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function isEventPast(dateStr) {
+      const d = parseEventDate(dateStr);
+      if (!d) return false;
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      return d < todayStart;
+    }
+
+    // 2. Events Module (Add, Edit, Delete - ALL events fully deletable)
+    function getAllEvents() {
+      let events = getStored('assp_all_events', null);
+      if (!events || !Array.isArray(events) || events.length === 0) {
+        events = JSON.parse(JSON.stringify(DEFAULT_EVENTS));
+        const legacy = getStored('assp_custom_events', []);
+        if (Array.isArray(legacy) && legacy.length > 0) {
+          events = [...legacy, ...events];
+        }
+        setStored('assp_all_events', events);
+      } else {
+        let updated = false;
+        events = events.map(ev => {
+          if (!ev.formUrl) {
+            const def = DEFAULT_EVENTS.find(d => d.id === ev.id || d.title === ev.title);
+            ev.formUrl = def && def.formUrl ? def.formUrl : 'https://forms.gle/asspKkuEvents';
+            updated = true;
+          }
+          return ev;
+        });
+        if (updated) {
+          setStored('assp_all_events', events);
+        }
+      }
+      return events;
+    }
+
+    function saveAllEvents(events) {
+      setStored('assp_all_events', events);
+    }
+
+    function renderEventsTable() {
+      const events = getAllEvents();
+      const tbody = document.getElementById('events-table-body');
+      const regs = getStored('assp_registrations', INITIAL_REGISTRATIONS);
+
+      if (!events || events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-bold">لا توجد فعاليات منشورة حالياً بالموقع</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = events.map(ev => {
+        const isPast = isEventPast(ev.date);
+        const realCount = regs.filter(r => r.program === ev.title).length;
+        const isLimited = ev.seatsType === 'limited' || (!ev.seatsType && ev.maxSeats);
+        const maxSeats = Number(ev.maxSeats) || 50;
+
+        let seatsBadge = '';
+        if (isLimited) {
+          const remaining = Math.max(0, maxSeats - realCount);
+          seatsBadge = `<span class="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded text-[11px] font-bold">محددة: ${realCount} / ${maxSeats} (متبقي: ${remaining})</span>`;
+        } else {
+          seatsBadge = `<span class="bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded text-[11px] font-bold">بدون حد (مفتوح للجميع)</span>`;
+        }
+
+        const formUrl = ev.formUrl || 'https://forms.gle/asspKkuEvents';
+        const formBadge = `<a href="${formUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition" title="فتح استمارة Google Form المخصصة للفعالية"><span>Google Form</span><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>`;
+
+        const statusBadge = isPast
+          ? '<span class="bg-stone-200 text-stone-700 px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1"><span>⏳</span><span>منتهية</span></span>'
+          : '<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1"><span>🟢</span><span>قادمة</span></span>';
+
+        return `
+          <tr class="hover:bg-slate-50 transition ${isPast ? 'bg-stone-50/70 opacity-75' : ''}">
+            <td class="p-3.5"><span class="bg-[#f4b016] text-[#054029] font-bold px-2 py-0.5 rounded text-[11px]">${ev.type}</span></td>
+            <td class="p-3.5 font-bold text-slate-800">${ev.title}</td>
+            <td class="p-3.5 text-slate-600 en-font font-medium">${ev.date}</td>
+            <td class="p-3.5">${seatsBadge}</td>
+            <td class="p-3.5">${formBadge}</td>
+            <td class="p-3.5">${statusBadge}</td>
+            <td class="p-3.5 text-center flex items-center justify-center gap-2">
+              <button onclick="openEditModal('${ev.id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 px-2.5 py-1 rounded-lg text-xs font-bold transition">تعديل ✏️</button>
+              <button onclick="deleteEvent('${ev.id}')" class="bg-red-50 text-red-700 hover:bg-red-100 px-2.5 py-1 rounded-lg text-xs font-bold transition">حذف ✕</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function saveNewEvent(e) {
+      e.preventDefault();
+      const seatsChoice = document.querySelector('input[name="event-seats-choice"]:checked')?.value || 'limited';
+      const maxSeats = seatsChoice === 'limited' ? (parseInt(document.getElementById('event-max-seats').value, 10) || 50) : null;
+      const formUrl = document.getElementById('event-form-url').value.trim() || 'https://forms.gle/asspKkuEvents';
+
+      const newEv = {
+        id: 'ev-' + Date.now(),
+        type: document.getElementById('event-type').value,
+        organizer: document.getElementById('event-organizer').value.trim(),
+        title: document.getElementById('event-title').value.trim(),
+        date: document.getElementById('event-date').value.trim(),
+        location: document.getElementById('event-location').value.trim(),
+        description: document.getElementById('event-desc').value.trim(),
+        seatsType: seatsChoice,
+        maxSeats: maxSeats,
+        formUrl: formUrl,
+        isDefault: false
+      };
+
+      const events = getAllEvents();
+      events.unshift(newEv);
+      saveAllEvents(events);
+
+      document.getElementById('event-title').value = '';
+      document.getElementById('event-desc').value = '';
+      document.getElementById('event-form-url').value = 'https://forms.gle/asspKkuEvents';
+      renderEventsTable();
+      renderOverview();
+      showToast('تم نشر الفعالية الجديدة في الموقع بنجاح!', 'تم النشر', '📅');
+    }
+
+    function openEditModal(id) {
+      const events = getAllEvents();
+      const ev = events.find(e => e.id === id);
+      if (!ev) return;
+
+      document.getElementById('edit-event-id').value = ev.id;
+      document.getElementById('edit-event-type').value = ev.type || 'ورشة تدريبية';
+      document.getElementById('edit-event-organizer').value = ev.organizer || '';
+      document.getElementById('edit-event-title').value = ev.title || '';
+      document.getElementById('edit-event-date').value = ev.date || '';
+      document.getElementById('edit-event-location').value = ev.location || '';
+      document.getElementById('edit-event-desc').value = ev.description || '';
+      document.getElementById('edit-event-form-url').value = ev.formUrl || 'https://forms.gle/asspKkuEvents';
+
+      const isLimited = ev.seatsType === 'limited' || (!ev.seatsType && ev.maxSeats);
+      if (isLimited) {
+        document.getElementById('edit-seats-limited').checked = true;
+        document.getElementById('edit-seats-input-box').classList.remove('hidden');
+        document.getElementById('edit-event-max-seats').value = ev.maxSeats || 50;
+      } else {
+        document.getElementById('edit-seats-unlimited').checked = true;
+        document.getElementById('edit-seats-input-box').classList.add('hidden');
+      }
+
+      document.getElementById('edit-event-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-event-modal').classList.add('hidden');
+    }
+
+    function saveEditedEvent(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-event-id').value;
+      const events = getAllEvents();
+      const idx = events.findIndex(e => e.id === id);
+      if (idx === -1) return;
+
+      const seatsChoice = document.querySelector('input[name="edit-event-seats-type"]:checked')?.value || 'limited';
+      const maxSeats = seatsChoice === 'limited' ? (parseInt(document.getElementById('edit-event-max-seats').value, 10) || 50) : null;
+      const formUrl = document.getElementById('edit-event-form-url').value.trim() || 'https://forms.gle/asspKkuEvents';
+
+      events[idx] = {
+        ...events[idx],
+        type: document.getElementById('edit-event-type').value,
+        organizer: document.getElementById('edit-event-organizer').value.trim(),
+        title: document.getElementById('edit-event-title').value.trim(),
+        date: document.getElementById('edit-event-date').value.trim(),
+        location: document.getElementById('edit-event-location').value.trim(),
+        description: document.getElementById('edit-event-desc').value.trim(),
+        seatsType: seatsChoice,
+        maxSeats: maxSeats,
+        formUrl: formUrl
+      };
+
+      saveAllEvents(events);
+      closeEditModal();
+      renderEventsTable();
+      renderOverview();
+      showToast('تم حفظ التعديلات وتحديث الفعالية في الموقع فوراً!', 'تم التعديل', '✨');
+    }
+
+    function deleteEvent(id) {
+      if (!confirm('هل أنت متأكد من حذف هذه الفعالية نهائياً من الموقع؟')) return;
+      const events = getAllEvents();
+      const updated = events.filter(e => e.id !== id);
+      saveAllEvents(updated);
+      renderEventsTable();
+      renderOverview();
+      showToast('تم حذف الفعالية نهائياً من الموقع.', 'تم الحذف', '🗑️');
+    }
+
+    // 3. Knowledge Management (Internal Only)
+    function getKnowledgeDocs() {
+      return getStored('assp_knowledge_docs', INITIAL_KNOWLEDGE_DOCS);
+    }
+
+    function renderKnowledgeBase(filtered = null) {
+      const docs = filtered || getKnowledgeDocs();
+      const tbody = document.getElementById('knowledge-table-body');
+      document.getElementById('knowledge-count-badge').textContent = docs.length;
+
+      if (docs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-stone-400">لا توجد وثائق في الأرشيف الداخلي حالياً</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = docs.map(d => `
+        <tr class="hover:bg-purple-50/40 transition">
+          <td class="p-3.5"><span class="bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded text-[10px]">${d.category}</span></td>
+          <td class="p-3.5 font-bold text-slate-800 flex items-center gap-1.5">
+            <span>📄</span>
+            <span>${d.title}</span>
+          </td>
+          <td class="p-3.5 text-stone-500 en-font">${d.format}</td>
+          <td class="p-3.5 text-stone-500 en-font">${d.date}</td>
+          <td class="p-3.5 text-stone-600 text-[11px]">${d.notes}</td>
+          <td class="p-3.5 text-center flex items-center justify-center gap-2">
+            <button onclick="downloadKnowledgeDoc('${d.title}')" class="text-xs font-bold text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded">تحميل ⬇</button>
+            <button onclick="deleteKnowledgeDoc('${d.id}')" class="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded">حذف ✕</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function saveKnowledgeDoc(e) {
+      e.preventDefault();
+      const newDoc = {
+        id: 'kb-' + Date.now(),
+        category: document.getElementById('doc-category').value,
+        title: document.getElementById('doc-title').value.trim(),
+        format: document.getElementById('doc-format').value.trim(),
+        notes: document.getElementById('doc-notes').value.trim(),
+        link: document.getElementById('doc-link').value.trim(),
+        date: new Date().toISOString().slice(0, 10)
+      };
+
+      const docs = getKnowledgeDocs();
+      docs.unshift(newDoc);
+      setStored('assp_knowledge_docs', docs);
+
+      document.getElementById('doc-title').value = '';
+      document.getElementById('doc-notes').value = '';
+      document.getElementById('doc-link').value = '';
+
+      renderKnowledgeBase();
+      renderOverview();
+      showToast('تمت أرشفة الوثيقة بنجاح داخل إدارة المعرفة السرية!', 'حفظ آمن', '🔒');
+    }
+
+    function downloadKnowledgeDoc(title) {
+      showToast(`جاري فتح وتحميل الوثيقة الإدارية: ${title}`, 'أرشيف داخلي', '📥');
+    }
+
+    function deleteKnowledgeDoc(id) {
+      if (!confirm('هل تريد حذف هذه الوثيقة نهائياً من إدارة المعرفة؟')) return;
+      const docs = getKnowledgeDocs().filter(d => d.id !== id);
+      setStored('assp_knowledge_docs', docs);
+      renderKnowledgeBase();
+      renderOverview();
+      showToast('تم حذف الوثيقة من الأرشيف الداخلي.', 'تم الحذف', '🗑️');
+    }
+
+    function filterKnowledgeBase() {
+      const q = document.getElementById('knowledge-search').value.toLowerCase();
+      const all = getKnowledgeDocs();
+      const filtered = all.filter(d => d.title.toLowerCase().includes(q) || d.category.toLowerCase().includes(q) || d.notes.toLowerCase().includes(q));
+      renderKnowledgeBase(filtered);
+    }
+
+    // 4. Registrations Module
+    function renderRegistrationsTable() {
+      const regs = getStored('assp_registrations', []);
+      const tbody = document.getElementById('registrations-table-body');
+      if (regs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">لا يوجد مسجلين حتى الآن</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = regs.map((r, i) => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-3.5 text-stone-400">${i + 1}</td>
+          <td class="p-3.5 font-bold text-[#085a3a]">${r.name}</td>
+          <td class="p-3.5 en-font">${r.studentId}</td>
+          <td class="p-3.5 en-font">${r.phone}</td>
+          <td class="p-3.5 en-font">${r.email}</td>
+          <td class="p-3.5 font-medium text-slate-700">${r.program}</td>
+          <td class="p-3.5 text-[11px] en-font text-stone-500">${r.date}</td>
+          <td class="p-3.5 text-center">
+            <button onclick="delRegistration('${r.id}')" class="text-red-600 hover:text-red-800 font-bold p-1">✕</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function delRegistration(id) {
+      if (!confirm('حذف هذا المسجل؟')) return;
+      const regs = getStored('assp_registrations', []).filter(r => r.id !== id);
+      setStored('assp_registrations', regs);
+      renderRegistrationsTable();
+      renderOverview();
+      showToast('تم حذف المسجل من القائمة.', 'تم التحديث', '🗑️');
+    }
+
+    function clearAllRegistrations() {
+      if (!confirm('تحذير: هل أنت متأكد من مسح جميع بيانات المسجلين؟')) return;
+      setStored('assp_registrations', []);
+      renderRegistrationsTable();
+      renderOverview();
+      showToast('تم مسح سجل المسجلين بالكامل.', 'تم المسح', '🧹');
+    }
+
+    function exportRegistrationsCSV() {
+      const regs = getStored('assp_registrations', []);
+      if (regs.length === 0) {
+        showToast('لا توجد بيانات مسجلين لتصديرها حالياً.', 'تنبيه', '⚠️');
+        return;
+      }
+      let csv = '\uFEFF"الاسم الثلاثي","الرقم الجامعي","رقم الجوال","البريد الجامعي","الفعالية / البرنامج","تاريخ التسجيل"\n';
+      regs.forEach(r => {
+        csv += `"${r.name}","${r.studentId}","${r.phone}","${r.email}","${r.program}","${r.date}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `ASSP_KKU_Registrations_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+      showToast('تم تصدير ملف Excel بنجاح!', 'تصدير ناجح', '📊');
+    }
+
+    // 5. Timer & Google Form Registration Module
+    function loadTimerSettings() {
+      const s = getStored('assp_reg_settings', { 
+        status: 'open', 
+        deadline: '', 
+        closedBtnText: 'التسجيل مغلق حالياً', 
+        closedMsg: 'نعتذر، انتهت فترة التسجيل المحددة من قبل إدارة الجمعية.',
+        googleFormUrl: 'https://forms.gle/asspKkuRegistration',
+        googleFormTitle: 'استمارة الانضمام واختيار اللجان (الفصل الدراسي الحالي)',
+        formMethod: 'modal'
+      });
+
+      if (document.getElementById('reg-' + s.status)) {
+        document.getElementById('reg-' + s.status).checked = true;
+      }
+      if (s.deadline && document.getElementById('reg-deadline')) document.getElementById('reg-deadline').value = s.deadline;
+      if (s.closedBtnText && document.getElementById('reg-closed-btn')) document.getElementById('reg-closed-btn').value = s.closedBtnText;
+      if (s.closedMsg && document.getElementById('reg-closed-msg')) document.getElementById('reg-closed-msg').value = s.closedMsg;
+
+      if (document.getElementById('reg-google-form-url')) {
+        document.getElementById('reg-google-form-url').value = s.googleFormUrl || 'https://forms.gle/asspKkuRegistration';
+      }
+      if (document.getElementById('reg-google-form-title')) {
+        document.getElementById('reg-google-form-title').value = s.googleFormTitle || 'استمارة الانضمام واختيار اللجان (الفصل الدراسي الحالي)';
+      }
+      if (s.formMethod === 'direct' && document.getElementById('method-direct')) {
+        document.getElementById('method-direct').checked = true;
+      } else if (document.getElementById('method-modal')) {
+        document.getElementById('method-modal').checked = true;
+      }
+    }
+
+    function saveTimerSettings(e) {
+      e.preventDefault();
+      const status = document.querySelector('input[name="reg-status"]:checked').value;
+      const deadline = document.getElementById('reg-deadline').value;
+      const closedBtnText = document.getElementById('reg-closed-btn').value.trim();
+      const closedMsg = document.getElementById('reg-closed-msg').value.trim();
+      const googleFormUrl = document.getElementById('reg-google-form-url').value.trim() || 'https://forms.gle/asspKkuRegistration';
+      const googleFormTitle = document.getElementById('reg-google-form-title').value.trim() || 'استمارة الانضمام واختيار اللجان (الفصل الدراسي الحالي)';
+      const formMethod = document.querySelector('input[name="reg-form-method"]:checked') ? document.querySelector('input[name="reg-form-method"]:checked').value : 'modal';
+
+      const s = { status, deadline, closedBtnText, closedMsg, googleFormUrl, googleFormTitle, formMethod };
+      setStored('assp_reg_settings', s);
+      renderOverview();
+      showToast('تم حفظ إعدادات التسجيل ورابط قوقل فورم وتحديث الموقع فوراً!', 'تم الحفظ', '📋');
+    }
+
+    function testGoogleFormUrl() {
+      const url = document.getElementById('reg-google-form-url').value.trim() || 'https://forms.gle/asspKkuRegistration';
+      window.open(url, '_blank');
+    }
+
+    function openCurrentGoogleForm() {
+      const s = getStored('assp_reg_settings', {});
+      const url = s.googleFormUrl || 'https://forms.gle/asspKkuRegistration';
+      window.open(url, '_blank');
+    }
+
+    // ----------------------------------------
+    // Teams & Members Management Module (Executive + 8 Teams + Members)
+    // ----------------------------------------
+    function getAllExecLeaders() {
+      let leaders = getStored('assp_exec_leaders', null);
+      if (!leaders || !Array.isArray(leaders) || leaders.length === 0) {
+        leaders = JSON.parse(JSON.stringify(DEFAULT_EXEC_LEADERS));
+        setStored('assp_exec_leaders', leaders);
+      }
+      return leaders;
+    }
+
+    function saveAllExecLeaders(leaders) {
+      setStored('assp_exec_leaders', leaders);
+    }
+
+    function getAllTeams() {
+      let teams = getStored('assp_teams_data', null);
+      if (!teams || !Array.isArray(teams) || teams.length === 0) {
+        teams = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+        setStored('assp_teams_data', teams);
+      } else {
+        // Upgrade check: ensure major and members exist on each team
+        let updated = false;
+        teams.forEach(t => {
+          if (!t.members || !Array.isArray(t.members)) {
+            const defT = DEFAULT_TEAMS.find(dt => dt.id === t.id);
+            t.members = defT && defT.members ? JSON.parse(JSON.stringify(defT.members)) : [];
+            updated = true;
+          }
+          if (t.leader && !t.leader.major) {
+            const defT = DEFAULT_TEAMS.find(dt => dt.id === t.id);
+            t.leader.major = (defT && defT.leader && defT.leader.major) || 'الهندسة';
+            updated = true;
+          }
+          if (t.deputy && !t.deputy.major) {
+            const defT = DEFAULT_TEAMS.find(dt => dt.id === t.id);
+            t.deputy.major = (defT && defT.deputy && defT.deputy.major) || 'علوم الحاسب';
+            updated = true;
+          }
+        });
+        if (updated) setStored('assp_teams_data', teams);
+      }
+      return teams;
+    }
+
+    function saveAllTeams(teams) {
+      setStored('assp_teams_data', teams);
+    }
+
+    function renderTeamsView() {
+      const execGrid = document.getElementById('exec-leaders-grid');
+      const teamsGrid = document.getElementById('teams-grid');
+      if (!execGrid || !teamsGrid) return;
+
+      const searchInput = document.getElementById('teams-search-input');
+      const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+      // 1. Render Top Executive Leaders
+      const execLeaders = getAllExecLeaders();
+      execGrid.innerHTML = execLeaders.map(lead => {
+        const isMatch = !q || 
+          lead.name.toLowerCase().includes(q) || 
+          lead.title.toLowerCase().includes(q) || 
+          lead.major.toLowerCase().includes(q) || 
+          lead.studentId.includes(q);
+
+        return `
+          <div class="bg-[#fbf7e6]/50 p-5 rounded-2xl border border-[#ebd7a5] shadow-sm flex flex-col justify-between hover:border-[#085a3a] transition ${!isMatch ? 'opacity-30' : ''}">
+            <div class="space-y-3">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-[#f4b016]/20 border border-[#f4b016]/40 flex items-center justify-center text-xl">
+                    ${lead.icon || '👑'}
+                  </div>
+                  <div>
+                    <h4 class="font-black text-sm text-[#085a3a]">${lead.title}</h4>
+                    <span class="text-[10px] bg-white text-[#085a3a] border border-[#ebd7a5] px-2 py-0.5 rounded-full font-bold">${lead.badge}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="font-extrabold text-slate-900 text-sm">${lead.name || 'لم يُعيّن'}</div>
+                <div class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-md mt-1">
+                  <span>🎓</span>
+                  <span>${lead.major || 'غير محدد'}</span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 pt-2 border-t border-[#ebd7a5]/60 text-xs text-stone-600">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-stone-400">الرقم الجامعي:</span>
+                  <span class="font-bold en-font">${lead.studentId || '-'}</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-stone-400">الجوال:</span>
+                  <a href="tel:${lead.phone || ''}" class="hover:text-[#085a3a] en-font font-medium">${lead.phone || '-'}</a>
+                </div>
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-stone-400">البريد:</span>
+                  <a href="mailto:${lead.email || ''}" class="hover:text-[#085a3a] en-font truncate max-w-[140px]" title="${lead.email || ''}">${lead.email || '-'}</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-3 mt-3 border-t border-[#ebd7a5]/60">
+              <button onclick="openEditExecModal('${lead.key}')" class="w-full py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#085a3a] border border-[#085a3a]/30 font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-sm">
+                <span>✏️</span>
+                <span>تعديل المقعد القيادي</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 2. Render Teams and Members
+      let teams = getAllTeams();
+      const allTeams = getAllTeams();
+
+      // Calculate stats
+      let totalMembersCount = 0;
+      allTeams.forEach(t => {
+        if (t.members && Array.isArray(t.members)) {
+          totalMembersCount += t.members.length;
+        }
+      });
+      const statM = document.getElementById('stat-teams-members-count');
+      if (statM) statM.textContent = totalMembersCount;
+
+      if (q) {
+        teams = teams.filter(t => 
+          (t.name && t.name.toLowerCase().includes(q)) ||
+          (t.category && t.category.toLowerCase().includes(q)) ||
+          (t.leader && t.leader.name && t.leader.name.toLowerCase().includes(q)) ||
+          (t.leader && t.leader.major && t.leader.major.toLowerCase().includes(q)) ||
+          (t.deputy && t.deputy.name && t.deputy.name.toLowerCase().includes(q)) ||
+          (t.deputy && t.deputy.major && t.deputy.major.toLowerCase().includes(q)) ||
+          (t.members && t.members.some(m => 
+            (m.name && m.name.toLowerCase().includes(q)) ||
+            (m.major && m.major.toLowerCase().includes(q)) ||
+            (m.studentId && m.studentId.includes(q)) ||
+            (m.role && m.role.toLowerCase().includes(q))
+          ))
+        );
+      }
+
+      if (teams.length === 0) {
+        teamsGrid.innerHTML = '<div class="col-span-full p-8 text-center text-xs text-slate-400 font-bold bg-white rounded-2xl border border-slate-200">لم يتم العثور على أي فريق أو عضو يطابق بحثك</div>';
+        return;
+      }
+
+      teamsGrid.innerHTML = teams.map(team => {
+        const lead = team.leader || {};
+        const dep = team.deputy || {};
+        const members = team.members || [];
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-[#ebd7a5] transition duration-200">
+            <!-- Team Card Header -->
+            <div class="p-5 border-b border-slate-100 flex items-start justify-between bg-slate-50/60">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-[#085a3a]/10 flex items-center justify-center text-2xl border border-[#085a3a]/20">
+                  ${team.icon || '👥'}
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-extrabold text-sm text-slate-900">${team.name}</h4>
+                    <span class="text-[10px] bg-[#fbf7e6] text-[#085a3a] border border-[#ebd7a5] font-bold px-2 py-0.5 rounded-full">${team.category}</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">${team.desc}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leadership Members (Leader & Deputy with Majors) -->
+            <div class="p-5 space-y-3.5 flex-1 text-right">
+              <!-- Team Leader Block -->
+              <div class="p-3.5 rounded-xl bg-[#fbf7e6]/50 border border-[#ebd7a5] text-xs space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="p-1 bg-[#f4b016] text-[#054029] rounded text-xs font-black">👑</span>
+                    <span class="font-bold text-[#085a3a]">قائد الفريق (Leader):</span>
+                    <span class="font-extrabold text-slate-900">${lead.name || 'لم يُعيّن'}</span>
+                  </div>
+                  <span class="text-[10px] text-stone-500 en-font bg-white px-2 py-0.5 rounded border border-[#ebd7a5]">${lead.studentId ? 'ID: ' + lead.studentId : ''}</span>
+                </div>
+                
+                <div class="flex items-center gap-1.5 text-[11px] text-emerald-900">
+                  <span class="text-xs">🎓</span>
+                  <span class="font-bold">التخصص:</span>
+                  <span class="bg-white/80 px-2 py-0.5 rounded border border-[#ebd7a5] font-semibold">${lead.major || 'غير محدد'}</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-[11px] text-stone-600 pt-1 border-t border-[#ebd7a5]/60">
+                  <div class="flex items-center gap-1">
+                    <span class="text-stone-400">📱</span>
+                    <a href="tel:${lead.phone || ''}" class="hover:text-[#085a3a] en-font">${lead.phone || 'لا يوجد'}</a>
+                  </div>
+                  <div class="flex items-center gap-1 overflow-hidden">
+                    <span class="text-stone-400">✉️</span>
+                    <a href="mailto:${lead.email || ''}" class="hover:text-[#085a3a] truncate en-font" title="${lead.email || ''}">${lead.email || 'لا يوجد'}</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Team Deputy Block -->
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="p-1 bg-blue-600 text-white rounded text-xs font-black">⭐</span>
+                    <span class="font-bold text-slate-700">نائب قائد الفريق (Deputy):</span>
+                    <span class="font-extrabold text-slate-900">${dep.name || 'لم يُعيّن'}</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 en-font bg-white px-2 py-0.5 rounded border border-slate-200">${dep.studentId ? 'ID: ' + dep.studentId : ''}</span>
+                </div>
+
+                <div class="flex items-center gap-1.5 text-[11px] text-blue-900">
+                  <span class="text-xs">🎓</span>
+                  <span class="font-bold">التخصص:</span>
+                  <span class="bg-white px-2 py-0.5 rounded border border-slate-200 font-semibold">${dep.major || 'غير محدد'}</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-1 border-t border-slate-200">
+                  <div class="flex items-center gap-1">
+                    <span class="text-slate-400">📱</span>
+                    <a href="tel:${dep.phone || ''}" class="hover:text-blue-700 en-font">${dep.phone || 'لا يوجد'}</a>
+                  </div>
+                  <div class="flex items-center gap-1 overflow-hidden">
+                    <span class="text-slate-400">✉️</span>
+                    <a href="mailto:${dep.email || ''}" class="hover:text-blue-700 truncate en-font" title="${dep.email || ''}">${dep.email || 'لا يوجد'}</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Team Members Section -->
+              <div class="pt-2 border-t border-slate-100 space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs">👥</span>
+                    <span class="font-bold text-xs text-slate-800">أعضاء الفريق</span>
+                    <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.2 rounded-full">${members.length}</span>
+                  </div>
+                  <button onclick="openAddMemberModal('${team.id}')" class="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-[#085a3a] border border-emerald-200 font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition">
+                    <span>➕</span>
+                    <span>إضافة عضو</span>
+                  </button>
+                </div>
+
+                <!-- Members List Container -->
+                <div class="space-y-2">
+                  ${members.length === 0 ? `
+                    <div class="p-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 text-center text-[11px] text-slate-400">
+                      لا يوجد أعضاء مسجلين في هذا الفريق بعد. اضغط "إضافة عضو" للبدء.
+                    </div>
+                  ` : members.map(m => `
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2 hover:border-slate-300 transition text-xs">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="font-bold text-slate-800 text-[11px]">${m.name}</span>
+                          ${m.role ? `<span class="text-[9px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded">${m.role}</span>` : ''}
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-500 mt-0.5">
+                          <span class="text-[#085a3a] font-semibold">🎓 ${m.major}</span>
+                          ${m.studentId ? `<span class="en-font">ID: ${m.studentId}</span>` : ''}
+                          ${m.phone ? `<span class="en-font">📱 ${m.phone}</span>` : ''}
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <button onclick="openEditMemberModal('${team.id}', '${m.id}')" class="p-1 text-slate-500 hover:text-blue-700 hover:bg-white rounded transition" title="تعديل بيانات العضو">
+                          ✏️
+                        </button>
+                        <button onclick="deleteMember('${team.id}', '${m.id}')" class="p-1 text-slate-400 hover:text-red-700 hover:bg-white rounded transition" title="حذف العضو من الفريق">
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Action Button -->
+            <div class="px-5 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-[11px] text-slate-400 font-medium">الفرع الطلابي - جامعة الملك خالد</span>
+              <button onclick="openEditTeamModal('${team.id}')" class="px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#085a3a] border border-[#085a3a]/30 font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
+                <span>✏️</span>
+                <span>تعديل قيادة الفريق (قائد ونائب)</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ----------------------------------------
+    // Executive Leaders Handlers
+    // ----------------------------------------
+    function openEditExecModal(key) {
+      const leaders = getAllExecLeaders();
+      const lead = leaders.find(l => l.key === key);
+      if (!lead) return;
+
+      document.getElementById('edit-exec-key').value = lead.key;
+      document.getElementById('edit-exec-title').textContent = 'تعديل مقعد: ' + lead.title;
+      document.getElementById('edit-exec-icon').textContent = lead.icon || '👑';
+      document.getElementById('edit-exec-name').value = lead.name || '';
+      document.getElementById('edit-exec-major').value = lead.major || '';
+      document.getElementById('edit-exec-id').value = lead.studentId || '';
+      document.getElementById('edit-exec-phone').value = lead.phone || '';
+      document.getElementById('edit-exec-email').value = lead.email || '';
+
+      document.getElementById('edit-exec-modal').classList.remove('hidden');
+    }
+
+    function closeEditExecModal() {
+      document.getElementById('edit-exec-modal').classList.add('hidden');
+    }
+
+    function saveEditedExec(e) {
+      e.preventDefault();
+      const key = document.getElementById('edit-exec-key').value;
+      const leaders = getAllExecLeaders();
+      const idx = leaders.findIndex(l => l.key === key);
+      if (idx === -1) return;
+
+      leaders[idx].name = document.getElementById('edit-exec-name').value.trim();
+      leaders[idx].major = document.getElementById('edit-exec-major').value.trim();
+      leaders[idx].studentId = document.getElementById('edit-exec-id').value.trim();
+      leaders[idx].phone = document.getElementById('edit-exec-phone').value.trim();
+      leaders[idx].email = document.getElementById('edit-exec-email').value.trim();
+
+      saveAllExecLeaders(leaders);
+      closeEditExecModal();
+      renderTeamsView();
+      showToast('تم حفظ وتحديث بيانات المقعد القيادي بنجاح!', 'ثلاثي قادة الجمعية', '👑');
+    }
+
+    // ----------------------------------------
+    // Team Leadership Handlers (with Major)
+    // ----------------------------------------
+    function openEditTeamModal(teamId) {
+      const teams = getAllTeams();
+      const team = teams.find(t => t.id === teamId);
+      if (!team) return;
+
+      document.getElementById('edit-team-id').value = team.id;
+      document.getElementById('edit-team-title').textContent = 'تعديل قيادة: ' + team.name;
+      document.getElementById('edit-team-icon').textContent = team.icon || '👥';
+
+      const lead = team.leader || {};
+      const dep = team.deputy || {};
+
+      document.getElementById('edit-leader-name').value = lead.name || '';
+      document.getElementById('edit-leader-major').value = lead.major || '';
+      document.getElementById('edit-leader-id').value = lead.studentId || '';
+      document.getElementById('edit-leader-phone').value = lead.phone || '';
+      document.getElementById('edit-leader-email').value = lead.email || '';
+
+      document.getElementById('edit-deputy-name').value = dep.name || '';
+      document.getElementById('edit-deputy-major').value = dep.major || '';
+      document.getElementById('edit-deputy-id').value = dep.studentId || '';
+      document.getElementById('edit-deputy-phone').value = dep.phone || '';
+      document.getElementById('edit-deputy-email').value = dep.email || '';
+
+      document.getElementById('edit-team-modal').classList.remove('hidden');
+    }
+
+    function closeEditTeamModal() {
+      document.getElementById('edit-team-modal').classList.add('hidden');
+    }
+
+    function saveEditedTeam(e) {
+      e.preventDefault();
+      const teamId = document.getElementById('edit-team-id').value;
+      const teams = getAllTeams();
+      const idx = teams.findIndex(t => t.id === teamId);
+      if (idx === -1) return;
+
+      teams[idx].leader = {
+        name: document.getElementById('edit-leader-name').value.trim(),
+        major: document.getElementById('edit-leader-major').value.trim(),
+        studentId: document.getElementById('edit-leader-id').value.trim(),
+        phone: document.getElementById('edit-leader-phone').value.trim(),
+        email: document.getElementById('edit-leader-email').value.trim()
+      };
+
+      teams[idx].deputy = {
+        name: document.getElementById('edit-deputy-name').value.trim(),
+        major: document.getElementById('edit-deputy-major').value.trim(),
+        studentId: document.getElementById('edit-deputy-id').value.trim(),
+        phone: document.getElementById('edit-deputy-phone').value.trim(),
+        email: document.getElementById('edit-deputy-email').value.trim()
+      };
+
+      saveAllTeams(teams);
+      closeEditTeamModal();
+      renderTeamsView();
+      showToast('تم حفظ وتحديث بيانات القيادة والتخصص بنجاح!', 'إدارة الفرق', '🤝');
+    }
+
+    // ----------------------------------------
+    // Team Members Handlers (Add, Edit, Delete)
+    // ----------------------------------------
+    function openAddMemberModal(teamId) {
+      const teams = getAllTeams();
+      const team = teams.find(t => t.id === teamId);
+      if (!team) return;
+
+      document.getElementById('member-modal-team-id').value = team.id;
+      document.getElementById('member-modal-id').value = '';
+      document.getElementById('member-modal-title').textContent = 'إضافة عضو جديد للفريق';
+      document.getElementById('member-modal-subtitle').textContent = team.name + ' - الفرع الطلابي';
+      document.getElementById('member-modal-icon').textContent = '➕';
+      document.getElementById('member-modal-submit-btn').textContent = 'إضافة العضو للفريق';
+
+      document.getElementById('member-modal-name').value = '';
+      document.getElementById('member-modal-major').value = '';
+      document.getElementById('member-modal-studentid').value = '';
+      document.getElementById('member-modal-phone').value = '';
+      document.getElementById('member-modal-email').value = '';
+      document.getElementById('member-modal-role').value = '';
+
+      document.getElementById('member-modal').classList.remove('hidden');
+    }
+
+    function openEditMemberModal(teamId, memberId) {
+      const teams = getAllTeams();
+      const team = teams.find(t => t.id === teamId);
+      if (!team || !team.members) return;
+      const mem = team.members.find(m => m.id === memberId);
+      if (!mem) return;
+
+      document.getElementById('member-modal-team-id').value = team.id;
+      document.getElementById('member-modal-id').value = mem.id;
+      document.getElementById('member-modal-title').textContent = 'تعديل بيانات العضو';
+      document.getElementById('member-modal-subtitle').textContent = team.name + ' - ' + mem.name;
+      document.getElementById('member-modal-icon').textContent = '✏️';
+      document.getElementById('member-modal-submit-btn').textContent = 'حفظ التعديلات';
+
+      document.getElementById('member-modal-name').value = mem.name || '';
+      document.getElementById('member-modal-major').value = mem.major || '';
+      document.getElementById('member-modal-studentid').value = mem.studentId || '';
+      document.getElementById('member-modal-phone').value = mem.phone || '';
+      document.getElementById('member-modal-email').value = mem.email || '';
+      document.getElementById('member-modal-role').value = mem.role || '';
+
+      document.getElementById('member-modal').classList.remove('hidden');
+    }
+
+    function closeMemberModal() {
+      document.getElementById('member-modal').classList.add('hidden');
+    }
+
+    function saveMember(e) {
+      e.preventDefault();
+      const teamId = document.getElementById('member-modal-team-id').value;
+      const memberId = document.getElementById('member-modal-id').value;
+
+      const teams = getAllTeams();
+      const team = teams.find(t => t.id === teamId);
+      if (!team) return;
+
+      team.members = team.members || [];
+
+      const memberData = {
+        name: document.getElementById('member-modal-name').value.trim(),
+        major: document.getElementById('member-modal-major').value.trim(),
+        studentId: document.getElementById('member-modal-studentid').value.trim(),
+        phone: document.getElementById('member-modal-phone').value.trim(),
+        email: document.getElementById('member-modal-email').value.trim(),
+        role: document.getElementById('member-modal-role').value.trim()
+      };
+
+      if (memberId) {
+        // Edit existing member
+        const memIdx = team.members.findIndex(m => m.id === memberId);
+        if (memIdx !== -1) {
+          team.members[memIdx] = { ...team.members[memIdx], ...memberData };
+          showToast(`تم تحديث بيانات العضو "${memberData.name}" بنجاح!`, 'تعديل عضو', '✏️');
+        }
+      } else {
+        // Add new member
+        memberData.id = 'mem-' + Date.now();
+        team.members.push(memberData);
+        showToast(`تمت إضافة العضو "${memberData.name}" إلى ${team.name} بنجاح!`, 'إضافة عضو', '👤');
+      }
+
+      saveAllTeams(teams);
+      closeMemberModal();
+      renderTeamsView();
+    }
+
+    function deleteMember(teamId, memberId) {
+      const teams = getAllTeams();
+      const team = teams.find(t => t.id === teamId);
+      if (!team || !team.members) return;
+
+      const mem = team.members.find(m => m.id === memberId);
+      const name = mem ? mem.name : 'العضو';
+
+      if (!confirm(`هل أنت متأكد من حذف ${name} من ${team.name}؟`)) return;
+
+      team.members = team.members.filter(m => m.id !== memberId);
+      saveAllTeams(teams);
+      renderTeamsView();
+      showToast(`تم حذف ${name} من الفريق.`, 'تم الحذف', '🗑️');
+    }
+
+    // ----------------------------------------
+    // Comprehensive CSV Export (Leaders + Teams + Members)
+    // ----------------------------------------
+    function exportTeamsCSV() {
+      const execLeaders = getAllExecLeaders();
+      const teams = getAllTeams();
+
+      let csv = '\uFEFF"المستوى الإداري","اسم الفريق / المنصب","المسمى القيادي","الاسم الكامل","التخصص الدراسي","الرقم الجامعي","رقم الجوال","البريد الإلكتروني","المهمة / الدور"\n';
+
+      // 1. Executive Leaders
+      execLeaders.forEach(el => {
+        csv += `"ثلاثي قادة الجمعية","ثلاثي قادة الجمعية","${el.title}","${el.name || ''}","${el.major || ''}","${el.studentId || ''}","${el.phone || ''}","${el.email || ''}","الإشراف العام"\n`;
+      });
+
+      // 2. Team Leaders, Deputies, and Members
+      teams.forEach(t => {
+        const l = t.leader || {};
+        const d = t.deputy || {};
+        csv += `"لجان وفرق العمل","${t.name}","قائد الفريق","${l.name || ''}","${l.major || ''}","${l.studentId || ''}","${l.phone || ''}","${l.email || ''}","قيادة الفريق"\n`;
+        csv += `"لجان وفرق العمل","${t.name}","نائب قائد الفريق","${d.name || ''}","${d.major || ''}","${d.studentId || ''}","${d.phone || ''}","${d.email || ''}","نيابة القيادة"\n`;
+
+        if (t.members && Array.isArray(t.members)) {
+          t.members.forEach(m => {
+            csv += `"أعضاء الفرق التنفيذية","${t.name}","عضو فريق","${m.name || ''}","${m.major || ''}","${m.studentId || ''}","${m.phone || ''}","${m.email || ''}","${m.role || 'عضو'}"\n`;
+          });
+        }
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ASSP_KKU_Members_and_Leadership_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('تم تصدير سجل القيادات والأعضاء بالكامل بنجاح!', 'تصدير الملف', '📥');
+    }
+
+    // ----------------------------------------
+    // 6. Public Resources Module (Full CRUD: Add, Edit, Delete for ALL)
+    // ----------------------------------------
+    function getAllResources() {
+      let list = getStored('assp_all_resources', null);
+      if (!list || !Array.isArray(list) || list.length === 0) {
+        list = JSON.parse(JSON.stringify(DEFAULT_PUBLIC_RESOURCES));
+        const legacy = getStored('assp_custom_resources', []);
+        if (Array.isArray(legacy) && legacy.length > 0) {
+          list = [...legacy, ...list];
+        }
+        setStored('assp_all_resources', list);
+      }
+      return list;
+    }
+
+    function saveAllResources(list) {
+      setStored('assp_all_resources', list);
+    }
+
+    function renderPublicResources() {
+      const all = getAllResources();
+      const box = document.getElementById('pub-resources-table');
+      if (!box) return;
+
+      if (all.length === 0) {
+        box.innerHTML = '<div class="p-6 text-center text-xs text-slate-400 font-bold">لا توجد ملفات أو كتيبات منشورة حالياً في مكتبة المعرفة</div>';
+        return;
+      }
+
+      box.innerHTML = all.map(r => `
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs hover:border-[#ebd7a5] transition">
+          <div class="flex-1 ml-4 text-right">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📄</span>
+              <div class="font-bold text-slate-800">${r.title}</div>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-0.5">${r.format} • ${r.desc}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openEditResourceModal('${r.id}')" class="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition shadow-sm">
+              <span>✏️</span>
+              <span>تعديل</span>
+            </button>
+            <button onclick="delPublicResource('${r.id}')" class="text-xs bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition shadow-sm">
+              <span>✕</span>
+              <span>حذف</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function savePublicResource(e) {
+      e.preventDefault();
+      const title = document.getElementById('pub-res-title').value.trim();
+      const format = document.getElementById('pub-res-format').value.trim();
+      const desc = document.getElementById('pub-res-desc').value.trim();
+
+      const all = getAllResources();
+      all.unshift({ id: 'res-' + Date.now(), title, format, desc, isDefault: false });
+      saveAllResources(all);
+
+      document.getElementById('pub-res-title').value = '';
+      document.getElementById('pub-res-desc').value = '';
+      renderPublicResources();
+      showToast('تمت إضافة الملف إلى مكتبة المعرفة بالموقع فوراً!', 'تمت الإضافة', '📁');
+    }
+
+    function openEditResourceModal(id) {
+      const all = getAllResources();
+      const res = all.find(r => r.id === id);
+      if (!res) return;
+
+      document.getElementById('edit-res-id').value = res.id;
+      document.getElementById('edit-res-title').value = res.title || '';
+      document.getElementById('edit-res-format').value = res.format || '';
+      document.getElementById('edit-res-desc').value = res.desc || '';
+
+      document.getElementById('edit-resource-modal').classList.remove('hidden');
+    }
+
+    function closeEditResourceModal() {
+      document.getElementById('edit-resource-modal').classList.add('hidden');
+    }
+
+    function saveEditedResource(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-res-id').value;
+      const all = getAllResources();
+      const idx = all.findIndex(r => r.id === id);
+      if (idx === -1) return;
+
+      all[idx].title = document.getElementById('edit-res-title').value.trim();
+      all[idx].format = document.getElementById('edit-res-format').value.trim();
+      all[idx].desc = document.getElementById('edit-res-desc').value.trim();
+
+      saveAllResources(all);
+      closeEditResourceModal();
+      renderPublicResources();
+      showToast('تم تحديث بيانات الملف بنجاح!', 'تم التعديل', '✏️');
+    }
+
+    function delPublicResource(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا الكتيب نهائياً من الموقع ومكتبة المعرفة؟')) return;
+      let all = getAllResources();
+      all = all.filter(r => r.id !== id);
+      saveAllResources(all);
+      renderPublicResources();
+      showToast('تم حذف الكتيب من مكتبة المعرفة بنجاح.', 'تم الحذف', '🗑️');
+    }
+
+    // 7. Announcement Module
+    function loadAnnouncementSettings() {
+      const ann = getStored('assp_announcement', {
+        enabled: true,
+        text: 'الفرع الطلابي المعتمد للجمعية الأمريكية لمحترفي السلامة (ASSP) - جامعة الملك خالد'
+      });
+      document.getElementById('ann-enabled').checked = ann.enabled;
+      document.getElementById('ann-text').value = ann.text;
+    }
+
+    function saveAnnouncement(e) {
+      e.preventDefault();
+      const enabled = document.getElementById('ann-enabled').checked;
+      const text = document.getElementById('ann-text').value.trim();
+      setStored('assp_announcement', { enabled, text });
+      showToast('تم تحديث نص الشريط الإعلاني في الموقع!', 'تم التحديث', '📢');
+    }
+
+    // Auto-login check on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('assp_admin_logged_in') === 'true') {
+        document.getElementById('login-gate').classList.add('hidden');
+        document.getElementById('admin-app').classList.remove('hidden');
+        initDashboard();
+      }
+    });
+  </script>
+</body>
+</html>
