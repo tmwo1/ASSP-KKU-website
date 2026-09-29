@@ -115,6 +115,14 @@
             <span id="side-reg-count" class="text-[10px] bg-emerald-700 text-white px-2 py-0.5 rounded-full">0</span>
           </button>
 
+          <button onclick="navTo('certificates')" id="nav-item-certificates" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
+            <div class="flex items-center gap-3">
+              <span class="text-base">🎓</span>
+              <span>طلبات الشهادات</span>
+            </div>
+            <span id="side-cert-count" class="text-[10px] bg-[#f4b016] text-[#054029] font-bold px-2 py-0.5 rounded-full">0</span>
+          </button>
+
           <button onclick="navTo('teams')" id="nav-item-teams" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right">
             <div class="flex items-center gap-3">
               <span class="text-base">🤝</span>
@@ -190,7 +198,7 @@
         <!-- ============================================== -->
         <div id="view-overview" class="view-panel space-y-6">
           <!-- Metric Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
                 <div class="text-xs font-bold text-slate-400">إجمالي المسجلين</div>
@@ -226,6 +234,15 @@
               </div>
               <div class="p-3 bg-amber-50 rounded-2xl text-amber-700 text-2xl">⏱️</div>
             </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">طلبات الشهادات</div>
+                <div id="stat-cert-overview" class="text-2xl font-black text-[#085a3a] mt-1">0</div>
+                <div id="stat-cert-overview-sub" class="text-[11px] text-amber-600 mt-0.5">0 قيد المراجعة</div>
+              </div>
+              <div class="p-3 bg-amber-50 rounded-2xl text-amber-700 text-2xl">🎓</div>
+            </div>
           </div>
 
           <!-- Quick Action Shortcuts -->
@@ -260,6 +277,11 @@
                   <div class="text-base mb-1">⏱️</div>
                   <div class="font-bold text-xs text-slate-800">تعديل مهلة التسجيل</div>
                   <div class="text-[10px] text-slate-500">إغلاق أو جدولة الزر</div>
+                </button>
+                <button onclick="navTo('certificates')" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-right transition">
+                  <div class="text-base mb-1">🎓</div>
+                  <div class="font-bold text-xs text-slate-800">طلبات الاستعلام عن الشهادات</div>
+                  <div class="text-[10px] text-slate-500">متابعة وفحص (٤-٨ أيام)</div>
                 </button>
               </div>
             </div>
@@ -472,6 +494,14 @@
                 </div>
               </div>
 
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">تحميل ملف من جهاز الإداري (كمبيوتر / جوال)</label>
+                <div class="flex flex-wrap items-center gap-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl p-3">
+                  <input type="file" id="doc-file-input" onchange="handleDocFileSelect(event)" class="text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#085a3a] file:text-white hover:file:bg-[#054029] cursor-pointer">
+                  <span id="doc-file-status" class="text-[11px] text-slate-500 font-medium">يمكنك اختيار ملف من جهازك لحفظه وتنزيله في أي وقت</span>
+                </div>
+              </div>
+
               <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-md flex items-center gap-2">
                 <span>حفظ وأرشفة الوثيقة في إدارة المعرفة</span>
               </button>
@@ -578,6 +608,108 @@
         <!-- ============================================== -->
         <!-- VIEW 5: REGISTRATION TIMER / TIMING CONTROLS -->
         <!-- ============================================== -->
+        <!-- ============================================== -->
+        <!-- VIEW: CERTIFICATES INQUIRIES -->
+        <!-- ============================================== -->
+        <div id="view-certificates" class="view-panel hidden space-y-6">
+          <!-- Header Banner -->
+          <div class="bg-gradient-to-l from-[#085a3a] to-[#0c6b45] text-white p-6 rounded-3xl shadow-md border border-emerald-800 flex flex-wrap items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="inline-flex items-center gap-2 bg-[#f4b016] text-[#054029] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                <span>🎓 استعلامات الشهادات</span>
+                <span>• الدعم الفني والإدارة</span>
+              </div>
+              <h2 class="text-xl font-bold">طلبات الاستعلام عن الشهادات</h2>
+              <p class="text-xs text-emerald-100 max-w-2xl">
+                هنا تظهر جميع طلبات الاستعلام المرفوعة من قبل الطلاب والزوار عبر الموقع العام لمطابقة سجلات الحضور وإصدار الشهادات المعتمدة، مع الالتزام بالرد خلال ٤ إلى ٨ أيام عمل.
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportCertInquiriesCSV()" class="bg-[#f4b016] hover:bg-amber-400 text-[#054029] font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 shadow">
+                <span>📥</span>
+                <span>تصدير الطلبات (CSV)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">إجمالي الطلبات</div>
+                <div id="stat-cert-total" class="text-2xl font-black text-[#085a3a] mt-1">0</div>
+                <div class="text-[11px] text-emerald-600 mt-0.5">طلب استعلام مرفوع</div>
+              </div>
+              <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-700 text-2xl">📋</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">قيد المراجعة والتدقيق</div>
+                <div id="stat-cert-pending" class="text-2xl font-black text-amber-600 mt-1">0</div>
+                <div class="text-[11px] text-amber-600 mt-0.5">المهلة ٤ - ٨ أيام</div>
+              </div>
+              <div class="p-3 bg-amber-50 rounded-2xl text-amber-700 text-2xl">⏳</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">تم الرد والمعالجة</div>
+                <div id="stat-cert-resolved" class="text-2xl font-black text-blue-600 mt-1">0</div>
+                <div class="text-[11px] text-blue-600 mt-0.5">تم التواصل أو الإرسال</div>
+              </div>
+              <div class="p-3 bg-blue-50 rounded-2xl text-blue-700 text-2xl">✅</div>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>سجل طلبات استعلام الشهادات الواردة</span>
+                  <span id="cert-count-badge" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">يتم تحديث الطلبات لحظياً فور إرسالها من الموقع</p>
+              </div>
+
+              <!-- Filters -->
+              <div class="flex flex-wrap items-center gap-2">
+                <input type="text" id="cert-search-input" oninput="filterCertInquiries()" placeholder="بحث بالبريد أو رقم الطلب..." class="bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-1.5 text-xs outline-none w-56 text-right">
+                
+                <select id="cert-filter-status" onchange="filterCertInquiries()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs outline-none">
+                  <option value="all">جميع الحالات</option>
+                  <option value="pending">قيد المراجعة (⏳)</option>
+                  <option value="resolved">تم الرد (✅)</option>
+                </select>
+
+                <button onclick="clearAllCertInquiries()" class="text-xs text-red-600 hover:bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl font-bold transition">
+                  مسح السجل 🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">رقم المرجع</th>
+                    <th class="p-3.5">البريد الإلكتروني المسجل</th>
+                    <th class="p-3.5">الفعالية / الدورة</th>
+                    <th class="p-3.5">تاريخ التقديم</th>
+                    <th class="p-3.5">مهلة الرد</th>
+                    <th class="p-3.5">الحالة</th>
+                    <th class="p-3.5 text-center">إجراءات الدعم الفني</th>
+                  </tr>
+                </thead>
+                <tbody id="cert-inquiries-table-body" class="divide-y divide-slate-200">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <!-- ============================================== -->
         <!-- VIEW: ASSOCIATION TEAMS MANAGEMENT (8 TEAMS) -->
         <!-- ============================================== -->
@@ -804,6 +936,20 @@
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">وصف مختصر *</label>
                 <input type="text" id="pub-res-desc" required placeholder="الإرشادات المعتمدة من إدارة السلامة والصحة المهنية بالجامعة..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">تحميل ملف من جهاز الإداري (كمبيوتر / جوال)</label>
+                  <div class="flex flex-wrap items-center gap-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl p-3">
+                    <input type="file" id="pub-res-file" onchange="handlePublicResourceFileSelect(event)" class="text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#085a3a] file:text-white hover:file:bg-[#054029] cursor-pointer">
+                    <span id="pub-res-file-status" class="text-[11px] text-slate-500 font-medium">ملفات PDF, Word, كتيبات</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">رابط خارجي للملف (اختياري)</label>
+                  <input type="text" id="pub-res-link" placeholder="https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#085a3a]">
+                </div>
               </div>
 
               <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-md">
@@ -1708,16 +1854,16 @@
 
     // View Navigation
     function navTo(viewName) {
-      const views = ['overview', 'events', 'knowledge', 'registrations', 'teams', 'timer', 'resources', 'announcements'];
+      const views = ['overview', 'events', 'knowledge', 'registrations', 'certificates', 'teams', 'timer', 'resources', 'announcements'];
       views.forEach(v => {
         const p = document.getElementById('view-' + v);
         const nav = document.getElementById('nav-item-' + v);
         if (p) p.classList.toggle('hidden', v !== viewName);
         if (nav) {
           if (v === viewName) {
-            nav.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white transition text-right';
+            nav.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-emerald-800 text-white transition text-right';
           } else {
-            nav.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right';
+            nav.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/10 text-emerald-100 transition text-right';
           }
         }
       });
@@ -1727,6 +1873,7 @@
         'events': ['إدارة الفعاليات والدورات', 'إضافة، تعديل، أو حذف الفعاليات المنشورة في الموقع'],
         'knowledge': ['إدارة المعرفة (الأرشيف الداخلي السري)', 'مستودع الوثائق والملفات الإدارية والتقارير الخاصة بالإدارة فقط'],
         'registrations': ['سجل المسجلين والطلبات', 'عرض وتعديل وتصدير بيانات الطلاب المسجلين'],
+        'certificates': ['طلبات الاستعلام عن الشهادات', 'متابعة وفحص استعلامات الطلاب والرد عليها من قبل الدعم الفني والإدارة'],
         'timer': ['توقيت وبوابة التسجيل', 'التحكم في حالة زر التسجيل وتحديد مهلة الإغلاق والمؤقت'],
         'resources': ['مكتبة المعرفة', 'إضافة وحذف الكتيبات والملفات المتاحة للطلاب والزوار في الموقع'],
         'announcements': ['الشريط الإعلاني', 'تخصيص الإعلان الإخباري المعروض في أعلى الموقع'],
@@ -1734,6 +1881,7 @@
       };
 
       if (viewName === 'teams') renderTeamsView();
+      if (viewName === 'certificates') renderCertInquiries();
       if (titles[viewName]) {
         document.getElementById('page-title').textContent = titles[viewName][0];
         document.getElementById('page-desc').textContent = titles[viewName][1];
@@ -1746,6 +1894,7 @@
       renderEventsTable();
       renderKnowledgeBase();
       renderRegistrationsTable();
+      renderCertInquiries();
       loadTimerSettings();
       renderPublicResources();
       loadAnnouncementSettings();
@@ -1758,10 +1907,20 @@
       const events = [...getStored('assp_custom_events', []), ...DEFAULT_EVENTS];
       const kb = getStored('assp_knowledge_docs', INITIAL_KNOWLEDGE_DOCS);
       const timer = getStored('assp_reg_settings', { status: 'open' });
+      const inquiries = getStored('assp_cert_inquiries', []);
 
       document.getElementById('stat-regs').textContent = regs.length;
       document.getElementById('stat-events').textContent = events.length;
       document.getElementById('stat-knowledge').textContent = kb.length;
+
+      const certOverviewElem = document.getElementById('stat-cert-overview');
+      if (certOverviewElem) certOverviewElem.textContent = inquiries.length;
+      const certOverviewSubElem = document.getElementById('stat-cert-overview-sub');
+      const pendingCount = inquiries.filter(i => i.status === 'pending').length;
+      if (certOverviewSubElem) certOverviewSubElem.textContent = pendingCount + ' قيد المراجعة';
+
+      const sideCertElem = document.getElementById('side-cert-count');
+      if (sideCertElem) sideCertElem.textContent = inquiries.length;
       document.getElementById('side-reg-count').textContent = regs.length;
 
       const timerElem = document.getElementById('stat-timer');
@@ -2016,6 +2175,38 @@
       return getStored('assp_knowledge_docs', INITIAL_KNOWLEDGE_DOCS);
     }
 
+    let tempDocFileData = null;
+    let tempDocFileName = null;
+    let tempDocFileSize = null;
+
+    function handleDocFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      tempDocFileName = file.name;
+      tempDocFileSize = (file.size / 1024).toFixed(1) + ' KB';
+      if (file.size > 1024 * 1024) {
+        tempDocFileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      }
+      const statusElem = document.getElementById('doc-file-status');
+      if (statusElem) statusElem.textContent = `تم اختيار: ${file.name} (${tempDocFileSize})`;
+
+      const titleInput = document.getElementById('doc-title');
+      if (titleInput && !titleInput.value) {
+        titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+      }
+      const formatInput = document.getElementById('doc-format');
+      if (formatInput) {
+        const ext = file.name.split('.').pop().toUpperCase();
+        formatInput.value = `${ext} (${tempDocFileSize})`;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        tempDocFileData = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
     function renderKnowledgeBase(filtered = null) {
       const docs = filtered || getKnowledgeDocs();
       const tbody = document.getElementById('knowledge-table-body');
@@ -2037,7 +2228,10 @@
           <td class="p-3.5 text-stone-500 en-font">${d.date}</td>
           <td class="p-3.5 text-stone-600 text-[11px]">${d.notes}</td>
           <td class="p-3.5 text-center flex items-center justify-center gap-2">
-            <button onclick="downloadKnowledgeDoc('${d.title}')" class="text-xs font-bold text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded">تحميل ⬇</button>
+            <button onclick="downloadKnowledgeDoc('${d.id}')" class="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition shadow-sm" title="تحميل وتنزيل الملف">
+              <span>📥</span>
+              <span>تحميل</span>
+            </button>
             <button onclick="deleteKnowledgeDoc('${d.id}')" class="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded">حذف ✕</button>
           </td>
         </tr>
@@ -2053,6 +2247,9 @@
         format: document.getElementById('doc-format').value.trim(),
         notes: document.getElementById('doc-notes').value.trim(),
         link: document.getElementById('doc-link').value.trim(),
+        fileData: tempDocFileData || null,
+        fileName: tempDocFileName || null,
+        fileSize: tempDocFileSize || null,
         date: new Date().toISOString().slice(0, 10)
       };
 
@@ -2063,14 +2260,46 @@
       document.getElementById('doc-title').value = '';
       document.getElementById('doc-notes').value = '';
       document.getElementById('doc-link').value = '';
+      const fileInput = document.getElementById('doc-file-input');
+      if (fileInput) fileInput.value = '';
+      const statusElem = document.getElementById('doc-file-status');
+      if (statusElem) statusElem.textContent = 'يمكنك اختيار ملف من جهازك لحفظه وتنزيله في أي وقت';
+      tempDocFileData = null;
+      tempDocFileName = null;
+      tempDocFileSize = null;
 
       renderKnowledgeBase();
       renderOverview();
       showToast('تمت أرشفة الوثيقة بنجاح داخل إدارة المعرفة السرية!', 'حفظ آمن', '🔒');
     }
 
-    function downloadKnowledgeDoc(title) {
-      showToast(`جاري فتح وتحميل الوثيقة الإدارية: ${title}`, 'أرشيف داخلي', '📥');
+    function downloadKnowledgeDoc(idOrTitle) {
+      const docs = getKnowledgeDocs();
+      const doc = docs.find(d => d.id === idOrTitle || d.title === idOrTitle);
+      if (!doc) return;
+      if (doc.fileData) {
+        const a = document.createElement('a');
+        a.href = doc.fileData;
+        a.download = doc.fileName || (doc.title + '.pdf');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast(`تم تنزيل الوثيقة الإدارية: ${doc.fileName || doc.title}`, 'تنزيل ملف داخلي', '📥');
+      } else if (doc.link && doc.link.startsWith('http')) {
+        window.open(doc.link, '_blank');
+      } else {
+        const content = `وثيقة أرشيف داخلي سري - فرع الجمعية الأمريكية لمهندسي السلامة (ASSP KKU)\n=======================================================\nالتصنيف: ${doc.category}\nالعنوان: ${doc.title}\nالصيغة: ${doc.format}\nتاريخ الأرشفة: ${doc.date}\nملاحظات السرية: ${doc.notes}\n\nهذه الوثيقة مؤرشفة رسمياً في سجلات إدارة المعرفة بفرع جامعة الملك خالد.`;
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${doc.title}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`تم تنزيل الوثيقة: ${doc.title}`, 'أرشيف داخلي', '📥');
+      }
     }
 
     function deleteKnowledgeDoc(id) {
@@ -2776,6 +3005,38 @@
       setStored('assp_all_resources', list);
     }
 
+    let tempPubResFileData = null;
+    let tempPubResFileName = null;
+    let tempPubResFileSize = null;
+
+    function handlePublicResourceFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      tempPubResFileName = file.name;
+      tempPubResFileSize = (file.size / 1024).toFixed(1) + ' KB';
+      if (file.size > 1024 * 1024) {
+        tempPubResFileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      }
+      const statusElem = document.getElementById('pub-res-file-status');
+      if (statusElem) statusElem.textContent = `تم اختيار: ${file.name} (${tempPubResFileSize})`;
+
+      const titleInput = document.getElementById('pub-res-title');
+      if (titleInput && !titleInput.value) {
+        titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+      }
+      const formatInput = document.getElementById('pub-res-format');
+      if (formatInput) {
+        const ext = file.name.split('.').pop().toUpperCase();
+        formatInput.value = `${ext} (${tempPubResFileSize})`;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        tempPubResFileData = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
     function renderPublicResources() {
       const all = getAllResources();
       const box = document.getElementById('pub-resources-table');
@@ -2796,6 +3057,10 @@
             <div class="text-[11px] text-slate-500 mt-0.5">${r.format} • ${r.desc}</div>
           </div>
           <div class="flex items-center gap-2">
+            <button onclick="downloadPublicResource('${r.id}')" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition shadow-sm" title="تحميل / تنزيل الملف">
+              <span>📥</span>
+              <span>تحميل</span>
+            </button>
             <button onclick="openEditResourceModal('${r.id}')" class="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition shadow-sm">
               <span>✏️</span>
               <span>تعديل</span>
@@ -2814,15 +3079,213 @@
       const title = document.getElementById('pub-res-title').value.trim();
       const format = document.getElementById('pub-res-format').value.trim();
       const desc = document.getElementById('pub-res-desc').value.trim();
+      const link = document.getElementById('pub-res-link') ? document.getElementById('pub-res-link').value.trim() : '';
 
       const all = getAllResources();
-      all.unshift({ id: 'res-' + Date.now(), title, format, desc, isDefault: false });
+      all.unshift({
+        id: 'res-' + Date.now(),
+        title,
+        format,
+        desc,
+        link,
+        fileData: tempPubResFileData || null,
+        fileName: tempPubResFileName || null,
+        fileSize: tempPubResFileSize || null,
+        isDefault: false
+      });
       saveAllResources(all);
 
       document.getElementById('pub-res-title').value = '';
       document.getElementById('pub-res-desc').value = '';
+      if (document.getElementById('pub-res-link')) document.getElementById('pub-res-link').value = '';
+      const fileInput = document.getElementById('pub-res-file');
+      if (fileInput) fileInput.value = '';
+      const statusElem = document.getElementById('pub-res-file-status');
+      if (statusElem) statusElem.textContent = 'ملفات PDF, Word, كتيبات';
+      tempPubResFileData = null;
+      tempPubResFileName = null;
+      tempPubResFileSize = null;
+
       renderPublicResources();
       showToast('تمت إضافة الملف إلى مكتبة المعرفة بالموقع فوراً!', 'تمت الإضافة', '📁');
+    }
+
+    function downloadPublicResource(id) {
+      const all = getAllResources();
+      const res = all.find(r => r.id === id);
+      if (!res) return;
+      if (res.fileData) {
+        const a = document.createElement('a');
+        a.href = res.fileData;
+        a.download = res.fileName || (res.title + '.pdf');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast(`تم تنزيل الكتيب بنجاح: ${res.fileName || res.title}`, 'تنزيل الكتيب', '📥');
+      } else if (res.link && res.link.startsWith('http')) {
+        window.open(res.link, '_blank');
+      } else {
+        const content = `الجمعية الأمريكية لمهندسي السلامة - فرع جامعة الملك خالد\nمكتبة المعرفة وأدلة السلامة المهنية\n\nالعنوان: ${res.title}\nالصيغة: ${res.format}\nالوصف: ${res.desc}\n\nتاريخ التحميل: ${new Date().toLocaleDateString('ar-SA')}`;
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${res.title}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`تم تنزيل الكتيب: ${res.title}`, 'تحميل ملف', '📥');
+      }
+    }
+
+    // ==========================================
+    // CERTIFICATES INQUIRIES MANAGEMENT
+    // ==========================================
+    function getCertInquiries() {
+      return getStored('assp_cert_inquiries', []);
+    }
+
+    function saveCertInquiries(list) {
+      setStored('assp_cert_inquiries', list);
+    }
+
+    function renderCertInquiries(filtered = null) {
+      const all = getCertInquiries();
+      const list = filtered || all;
+
+      // Stats
+      const totalElem = document.getElementById('stat-cert-total');
+      if (totalElem) totalElem.textContent = all.length;
+      const pendingCount = all.filter(i => i.status === 'pending').length;
+      const pendingElem = document.getElementById('stat-cert-pending');
+      if (pendingElem) pendingElem.textContent = pendingCount;
+      const resolvedCount = all.filter(i => i.status === 'resolved').length;
+      const resolvedElem = document.getElementById('stat-cert-resolved');
+      if (resolvedElem) resolvedElem.textContent = resolvedCount;
+
+      const badgeElem = document.getElementById('cert-count-badge');
+      if (badgeElem) badgeElem.textContent = all.length;
+
+      const sideCertElem = document.getElementById('side-cert-count');
+      if (sideCertElem) sideCertElem.textContent = all.length;
+
+      const tbody = document.getElementById('cert-inquiries-table-body');
+      if (!tbody) return;
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-xs text-slate-400 font-bold">لا توجد طلبات استعلام عن شهادات واردة حتى الآن</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(item => {
+        const isPending = item.status === 'pending';
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="p-3.5 font-mono font-bold text-[#085a3a] text-xs">${item.id}</td>
+            <td class="p-3.5 font-semibold text-slate-800 dir-ltr text-right">${item.email}</td>
+            <td class="p-3.5 text-slate-600 text-xs">${item.event || 'دورة / ورشة معتمدة'}</td>
+            <td class="p-3.5 text-slate-500 text-xs">${item.date}</td>
+            <td class="p-3.5">
+              <span class="inline-block bg-emerald-50 text-[#085a3a] border border-emerald-200 px-2 py-0.5 rounded text-[11px] font-bold">
+                ${item.replyWindow || 'من ٤-٨ أيام'}
+              </span>
+            </td>
+            <td class="p-3.5">
+              ${isPending ? `
+                <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  <span>قيد المراجعة</span>
+                </span>
+              ` : `
+                <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                  <span>✅</span>
+                  <span>تم الرد</span>
+                </span>
+              `}
+            </td>
+            <td class="p-3.5 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <a href="mailto:${item.email}?subject=${encodeURIComponent('بخصوص استعلامك عن شهادة ASSP KKU - ' + item.id)}&body=${encodeURIComponent('مرحباً بك،\n\nبخصوص طلب استعلامك برقم مرجعي: ' + item.id + '، نفيدك بأنه تم التحقق من سجل الحضور...\n\nمع تحيات إدارة فرع الجمعية الأمريكية لمهندسي السلامة - جامعة الملك خالد')}" class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="رد عبر البريد الإلكتروني">
+                  <span>✉️</span>
+                  <span>رد</span>
+                </a>
+                <button onclick="toggleCertInquiryStatus('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-2 py-1 rounded-lg text-xs font-bold transition" title="تغيير الحالة">
+                  ${isPending ? 'اعتماد الرد ✅' : 'إعادة للمراجعة ⏳'}
+                </button>
+                <button onclick="deleteCertInquiry('${item.id}')" class="text-red-600 hover:bg-red-50 p-1 rounded-lg transition text-xs font-bold" title="حذف الطلب">
+                  ✕
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleCertInquiryStatus(id) {
+      const all = getCertInquiries();
+      const item = all.find(i => i.id === id);
+      if (!item) return;
+      item.status = item.status === 'pending' ? 'resolved' : 'pending';
+      saveCertInquiries(all);
+      renderCertInquiries();
+      renderOverview();
+      showToast('تم تحديث حالة الطلب بنجاح!', 'تحديث الحالة', '🔄');
+    }
+
+    function deleteCertInquiry(id) {
+      if (!confirm('هل أنت متأكد من رغبتك في حذف طلب الاستعلام هذا؟')) return;
+      const all = getCertInquiries().filter(i => i.id !== id);
+      saveCertInquiries(all);
+      renderCertInquiries();
+      renderOverview();
+      showToast('تم حذف طلب الاستعلام.', 'تم الحذف', '🗑️');
+    }
+
+    function filterCertInquiries() {
+      const q = (document.getElementById('cert-search-input')?.value || '').toLowerCase().trim();
+      const status = document.getElementById('cert-filter-status')?.value || 'all';
+      let all = getCertInquiries();
+      if (status !== 'all') {
+        all = all.filter(i => i.status === status);
+      }
+      if (q) {
+        all = all.filter(i => (i.email && i.email.toLowerCase().includes(q)) || (i.id && i.id.toLowerCase().includes(q)) || (i.event && i.event.toLowerCase().includes(q)));
+      }
+      renderCertInquiries(all);
+    }
+
+    function clearAllCertInquiries() {
+      const all = getCertInquiries();
+      if (all.length === 0) return;
+      if (!confirm('تحذير: هل تريد مسح جميع سجلات استعلامات الشهادات نهائياً؟')) return;
+      saveCertInquiries([]);
+      renderCertInquiries();
+      renderOverview();
+      showToast('تم إفراغ سجل طلبات الشهادات بالكامل.', 'إفراغ السجل', '🗑️');
+    }
+
+    function exportCertInquiriesCSV() {
+      const inquiries = getCertInquiries();
+      if (inquiries.length === 0) {
+        showToast('لا توجد طلبات لتصديرها حالياً.', 'تنبيه', '⚠️');
+        return;
+      }
+      let csv = '\uFEFFرقم المرجع,البريد الإلكتروني,الفعالية,تاريخ التقديم,المهلة,الحالة,ملاحظات\n';
+      inquiries.forEach(i => {
+        csv += `"${i.id}","${i.email}","${i.event || ''}","${i.date}","${i.replyWindow || 'من ٤-٨ أيام'}","${i.status === 'pending' ? 'قيد المراجعة' : 'تم الرد'}","${i.notes || ''}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `طلبات_استعلام_الشهادات_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('تم تصدير ملف الطلبات (CSV) بنجاح!', 'تم التصدير', '📥');
     }
 
     function openEditResourceModal(id) {
