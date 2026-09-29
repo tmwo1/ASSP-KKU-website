@@ -373,9 +373,12 @@
           </p>
         </div>
 
-        <form onsubmit="event.preventDefault(); verifyCertificate();" class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
+        <form onsubmit="event.preventDefault(); verifyCertificate();" class="flex flex-col md:flex-row gap-3 max-w-2xl mx-auto">
           <div class="flex-1 relative">
-            <input type="email" id="cert-input" required placeholder="أدخل بريدك الإلكتروني المسجل (مثلاً: student@kku.edu.sa)" class="w-full bg-[#fbf7e6] border border-[#d9d0b5] rounded-xl px-4 py-3 text-sm text-right outline-none focus:border-[#085a3a] focus:ring-2 focus:ring-[#085a3a]/20">
+            <input type="email" id="cert-input" required placeholder="البريد الإلكتروني المسجل (مثلاً: student@kku.edu.sa)" class="w-full bg-[#fbf7e6] border border-[#d9d0b5] rounded-xl px-4 py-3 text-sm text-right outline-none focus:border-[#085a3a] focus:ring-2 focus:ring-[#085a3a]/20">
+          </div>
+          <div class="flex-1 relative">
+            <input type="text" id="cert-event-input" required placeholder="اسم الدورة أو الفعالية (مثلاً: معرض الكيانات)" class="w-full bg-[#fbf7e6] border border-[#d9d0b5] rounded-xl px-4 py-3 text-sm text-right outline-none focus:border-[#085a3a] focus:ring-2 focus:ring-[#085a3a]/20">
           </div>
           <button type="submit" class="bg-[#085a3a] hover:bg-[#054029] text-white font-bold px-6 py-3 rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-sm whitespace-nowrap">
             <svg class="w-4 h-4 text-[#f4b016]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
@@ -403,7 +406,7 @@
             </div>
 
             <p class="text-xs sm:text-sm text-[#53655b] max-w-lg mx-auto leading-relaxed">
-              تم تسجيل بريدكم المسجل (<span id="cert-success-email" class="font-bold text-[#085a3a] dir-ltr inline-block"></span>) في قائمة طلبات استعلام الشهادات لدى فريق الدعم الفني وإدارة الفرع الطلابي، وسيتم مطابقة بيانات الحضور وإرسال إفادة الاعتماد إلى بريدكم خلال الفترة المحددة.
+              تم تسجيل بريدكم المسجل (<span id="cert-success-email" class="font-bold text-[#085a3a] dir-ltr inline-block"></span>) لطلب استعلام شهادة (<span id="cert-success-event" class="font-bold text-[#085a3a]"></span>) في قائمة طلبات استعلام الشهادات لدى فريق الدعم الفني وإدارة الفرع الطلابي، وسيتم مطابقة بيانات الحضور وإرسال إفادة الاعتماد إلى بريدكم خلال الفترة المحددة.
             </p>
 
             <div class="pt-4 border-t border-[#ebd7a5]/60 flex flex-wrap items-center justify-center gap-4 text-xs text-[#53655b]">
@@ -2188,6 +2191,13 @@
         return;
       }
 
+      const eventInput = document.getElementById('cert-event-input');
+      const eventName = eventInput ? eventInput.value.trim() : '';
+      if (!eventName) {
+        showToast('الرجاء إدخال اسم الدورة أو الفعالية', 'تنبيه', '⚠️');
+        return;
+      }
+
       const refId = 'CERT-' + Math.floor(100000 + Math.random() * 900000);
       const now = new Date();
       const dateStr = now.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
@@ -2196,7 +2206,7 @@
       const newInquiry = {
         id: refId,
         email: email,
-        event: 'دورة / فعالية معتمدة',
+        event: eventName,
         date: dateStr,
         timestamp: Date.now(),
         status: 'pending',
@@ -2208,6 +2218,9 @@
 
       const emailDisplay = document.getElementById('cert-success-email');
       if (emailDisplay) emailDisplay.textContent = email;
+
+      const eventDisplay = document.getElementById('cert-success-event');
+      if (eventDisplay) eventDisplay.textContent = eventName;
 
       const refDisplay = document.getElementById('cert-inquiry-ref');
       if (refDisplay) refDisplay.textContent = refId;
